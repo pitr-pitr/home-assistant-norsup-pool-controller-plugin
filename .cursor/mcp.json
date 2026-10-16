@@ -1,0 +1,21 @@
+{
+  "mcpServers": {
+    "loom": {
+      "type": "stdio",
+      "command": "/Users/pitrjansen/code/loom/apps/api/.venv/bin/python3",
+      "args": [
+        "/Users/pitrjansen/code/loom/apps/api/mcp_stdio.py",
+        "--project-id",
+        "44",
+        "--run-id",
+        "4287",
+        "--task-id",
+        "817"
+      ],
+      "env": {
+        "PYTHONPATH": "/Users/pitrjansen/code/loom/apps/api",
+        "DATABASE_URL": "sqlite:////Users/pitrjansen/code/loom/apps/api/loom.db"
+      }
+    }
+  }
+}

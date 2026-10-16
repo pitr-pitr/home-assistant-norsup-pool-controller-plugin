@@ -1,0 +1,6 @@
+{
+  "online": true,
+  "water_temperature": 24.5,
+  "pump_status": true,
+  "pump_speed": "medium"
+}

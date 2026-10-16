@@ -1,0 +1,12 @@
+{
+  "domain": "norsup_smartpool",
+  "name": "Norsup Smartpool",
+  "codeowners": [],
+  "config_flow": true,
+  "documentation": "https://github.com/pitrjansen/norsup-smartpool-ha/blob/main/README.md",
+  "integration_type": "hub",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/pitrjansen/norsup-smartpool-ha/issues",
+  "requirements": ["aiohttp>=3.9.0"],
+  "version": "0.1.0"
+}

@@ -1,0 +1,68 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify manifest version matches tag
+        shell: bash
+        run: |
+          set -euo pipefail
+          TAG="${GITHUB_REF#refs/tags/}"
+          VERSION="${TAG#v}"
+          MANIFEST_VERSION="$(python3 -c "import json; print(json.load(open('custom_components/norsup_smartpool/manifest.json'))['version'])")"
+          if [[ "${MANIFEST_VERSION}" != "${VERSION}" ]]; then
+            echo "manifest.json version (${MANIFEST_VERSION}) must match tag (${TAG} → ${VERSION})"
+            exit 1
+          fi
+          echo "VERSION=${VERSION}" >> "${GITHUB_ENV}"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip && pip install -r requirements-dev.txt
+
+      - name: Ruff
+        run: ruff check .
+
+      - name: Pytest
+        run: pytest tests/
+
+      - name: Build HACS manual-install zip
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          # Extract under <config>/ so paths match README manual install.
+          (cd custom_components && zip -r "../dist/norsup_smartpool-${VERSION}.zip" norsup_smartpool \
+            -x "**/__pycache__/*" "**/*.pyc")
+          unzip -l "dist/norsup_smartpool-${VERSION}.zip" | head -20
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: dist/*.zip
+          body: |
+            ## Install
+
+            - **HACS:** Add this repository as a custom integration (see [README](https://github.com/${{ github.repository }}/blob/main/README.md#hacs-recommended)); HACS installs from the repo root (`content_in_root`).
+            - **Manual:** Download `norsup_smartpool-${{ env.VERSION }}.zip` below, extract into your Home Assistant `config/` directory (creates `custom_components/norsup_smartpool/`), then restart Home Assistant.
+
+            Integration version **${{ env.VERSION }}** matches `manifest.json` and tag **${{ github.ref_name }}**.

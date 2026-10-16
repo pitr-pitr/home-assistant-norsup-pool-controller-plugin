@@ -1,0 +1,6 @@
+{
+  "name": "Norsup Smartpool",
+  "content_in_root": true,
+  "country": ["NL", "BE", "DE"],
+  "homeassistant": "2024.1.0"
+}

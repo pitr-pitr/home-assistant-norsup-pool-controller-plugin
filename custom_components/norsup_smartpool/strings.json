@@ -1,0 +1,58 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect to Norsup Smartpool",
+        "description": "Enter your Smart Pool Connect credentials for one pool. See INSTALL.md (Obtaining an API key) for how to get your API key.",
+        "data": {
+          "api_key": "API key",
+          "pool_id": "Pool ID (UUID)",
+          "base_url": "API base URL (optional)"
+        },
+        "data_description": {
+          "api_key": "Long-lived token from Smart Pool Connect. See INSTALL.md → Obtaining an API key.",
+          "pool_id": "UUID from the portal URL when you open your pool (INSTALL.md → Finding your Pool ID)."
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Could not reach Smart Pool Connect. Check your network and base URL.",
+      "invalid_auth": "Invalid API key or pool ID. Verify credentials in the Smart Pool Connect portal.",
+      "unknown": "Unexpected error. Check Home Assistant logs for details."
+    },
+    "abort": {
+      "already_configured": "This pool is already configured."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "water_temperature": { "name": "Water temperature" },
+      "ph": { "name": "pH" },
+      "orp": { "name": "ORP" },
+      "pump_speed": { "name": "Pump speed" },
+      "diagnostics": { "name": "Diagnostics" }
+    },
+    "binary_sensor": {
+      "pump_running": { "name": "Pump running" },
+      "cloud_online": { "name": "Cloud online" }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Update Norsup Smartpool options",
+        "description": "Rotate your API key or change the poll interval. The new key is validated before saving.",
+        "data": {
+          "api_key": "API key",
+          "scan_interval": "Update interval (seconds)",
+          "enable_diagnostics": "Enable diagnostics sensor (reload integration after change)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Could not reach Smart Pool Connect. Check your network.",
+      "invalid_auth": "Invalid API key. The previous key was kept.",
+      "unknown": "Unexpected error while validating the API key."
+    }
+  }
+}
