@@ -8,3 +8,5 @@ venv/
 *.egg-info/
 .DS_Store
 dist/
+web/node_modules/
+web/dist/

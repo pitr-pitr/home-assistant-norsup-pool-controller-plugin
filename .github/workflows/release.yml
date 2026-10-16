@@ -62,7 +62,7 @@ jobs:
           body: |
             ## Install
 
-            - **HACS:** Add this repository as a custom integration (see [README](https://github.com/${{ github.repository }}/blob/main/README.md#hacs-recommended)); HACS installs from the repo root (`content_in_root`).
+            - **HACS:** Add this repository as a custom integration (see [README](https://github.com/${{ github.repository }}/blob/main/README.md#hacs-recommended)); integration files live under `custom_components/norsup_smartpool/` (do not use `content_in_root` in `hacs.json`).
             - **Manual:** Download `norsup_smartpool-${{ env.VERSION }}.zip` below, extract into your Home Assistant `config/` directory (creates `custom_components/norsup_smartpool/`), then restart Home Assistant.
 
             Integration version **${{ env.VERSION }}** matches `manifest.json` and tag **${{ github.ref_name }}**.

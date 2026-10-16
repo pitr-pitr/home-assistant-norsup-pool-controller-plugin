@@ -1,0 +1,59 @@
+:root {
+  --deep: #042f2e;
+  --pool: #0a5c5a;
+  --foam: #b8f3e8;
+  --mist: #e8f7f4;
+  --sand: #f4efe6;
+  --text: #e8f7f4;
+  --text-muted: #9cc9c0;
+  --panel: rgba(8, 74, 70, 0.72);
+  --panel-border: rgba(184, 243, 232, 0.18);
+  --accent: #3ee0c8;
+  --accent-dim: #1f9f8d;
+  --danger: #ff8a7a;
+  font-family: 'Figtree', system-ui, sans-serif;
+  color: var(--text);
+  background: var(--deep);
+  line-height: 1.55;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse 120% 80% at 50% -20%, #1a8a7a 0%, transparent 55%),
+    radial-gradient(circle at 100% 100%, #063836 0%, var(--deep) 50%),
+    var(--deep);
+}
+
+#root {
+  min-height: 100vh;
+}
+
+h1,
+h2 {
+  font-family: 'Literata', Georgia, serif;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+a {
+  color: var(--accent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+a:hover {
+  color: var(--foam);
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+}

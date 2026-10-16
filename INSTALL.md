@@ -68,6 +68,17 @@ To **rotate the API key**, open the integration → **Configure** → update the
 
 ## Troubleshooting
 
+### HACS: “No manifest.json file found”
+
+When adding this repo under **Custom repositories** with category **Integration**, HACS looks for `custom_components/<domain>/manifest.json`. This project uses `custom_components/norsup_smartpool/manifest.json`.
+
+If HACS reports that no `manifest.json` was found:
+
+1. Confirm the repository URL is exactly `https://github.com/pitr-pitr/home-assistant-norsup-pool-controller-plugin` (no typo or truncated path).
+2. Choose category **Integration**, not Plugin or Theme.
+3. Ensure `hacs.json` on the default branch does **not** set `"content_in_root": true` (that mode expects `manifest.json` at the repository root, which this integration does not use). Pull the latest `main` from GitHub after updating the repo.
+4. After a successful add, open **HACS** → **Integrations**, search **Norsup Smartpool**, install, then restart Home Assistant.
+
 ### Invalid API key or pool ID
 
 Symptoms: Config flow error *Invalid API key or pool ID*, or entities stay unavailable after setup.

@@ -10,8 +10,21 @@ Poll water chemistry, temperature, pump status, and connectivity into Home Assis
 | **IoT class** | Cloud polling |
 | **Documentation** | [INSTALL.md](INSTALL.md) (credentials, troubleshooting) |
 | **Architecture** | [ARCHITECTURE.md](ARCHITECTURE.md) |
+| **Install guide (web)** | Run the companion UI (`companion/` + `web/`) for HACS URL copy and API key checklist |
 
 > **Disclaimer:** Not affiliated with Norsup. Cloud API behavior may change without notice.
+
+### Companion install UI (optional)
+
+A small web app documents HACS setup and API key requirements. Build and run:
+
+```bash
+pip install -r requirements-companion.txt
+cd web && npm install && npm run build && cd ..
+python3 -m uvicorn companion.server:app --host 127.0.0.1 --port 8044
+```
+
+Open `http://127.0.0.1:8044/` (API: `/v1/health`, `/v1/integration`). Use any free port ≥ 8001 if 8044 is taken.
 
 ---
 
@@ -31,15 +44,16 @@ Poll water chemistry, temperature, pump status, and connectivity into Home Assis
 1. Install [HACS](https://hacs.xyz/docs/setup/download) if you have not already.
 2. **HACS** → **Integrations** → **⋮** (menu) → **Custom repositories**.
 3. Add this repository:
-   - **Repository:** `https://github.com/pitrjansen/norsup-smartpool-ha`
+   - **Repository:** `https://github.com/pitr-pitr/home-assistant-norsup-pool-controller-plugin`
    - **Category:** Integration
 4. **Download** the integration from HACS (search **Norsup Smartpool**).
-5. **Restart** Home Assistant.
-6. **Settings** → **Devices & services** → **Add integration** → **Norsup Smartpool**, then follow [INSTALL.md](INSTALL.md#configure-in-home-assistant).
+5. If HACS shows *No manifest.json file found*, see [INSTALL.md — HACS troubleshooting](INSTALL.md#hacs-no-manifestjson-file-found) (usually `content_in_root` on an older `hacs.json` — use latest `main`).
+6. **Restart** Home Assistant.
+7. **Settings** → **Devices & services** → **Add integration** → **Norsup Smartpool**, then follow [INSTALL.md](INSTALL.md#configure-in-home-assistant).
 
 ### Manual install
 
-1. Download the latest release zip from [GitHub Releases](https://github.com/pitrjansen/norsup-smartpool-ha/releases) or clone this repository.
+1. Download the latest release zip from [GitHub Releases](https://github.com/pitr-pitr/home-assistant-norsup-pool-controller-plugin/releases) or clone this repository.
 2. Copy the folder `custom_components/norsup_smartpool` into your Home Assistant configuration directory:
 
    ```text

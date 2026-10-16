@@ -17,7 +17,7 @@
 
 | Check | Result | Evidence |
 |-------|--------|----------|
-| **HACS install path** | **Pass** | `hacs.json` valid (`content_in_root`, country, min HA). README steps: custom repo URL, Integration category, restart, add integration. Matches standard HACS custom integration layout (`custom_components/norsup_smartpool/`). |
+| **HACS install path** | **Pass** | `hacs.json` valid (no `content_in_root`; country; min HA). README + companion UI use repo `pitr-pitr/home-assistant-norsup-pool-controller-plugin`. Integration category; manifest at `custom_components/norsup_smartpool/manifest.json` (fixes HACS “No manifest.json” when `content_in_root` was true). |
 | **Manual install path** | **Pass** | README manual section: copy `custom_components/norsup_smartpool` to `<config>/custom_components/`, restart, add integration. `dist/norsup_smartpool-0.1.0.zip` present for release-style manual download. INSTALL.md aligns with config flow fields. |
 | **Invalid API key / pool ID** | **Pass** | `tests/test_config_flow.py`: malformed UUID → `invalid_auth` without API call; HTTP 401 → `invalid_auth`, no config entry. `strings.json` errors: “Invalid API key or pool ID…” and connection message for network failures. Options flow keeps previous key on failed rotation (`test_options_flow_invalid_key`). |
 | **Successful entity creation** | **Pass (code + tests)** | Config flow success test creates entry with pool unique_id. Platforms `sensor` + `binary_sensor` register temperature, pH, ORP, pump speed, pump running, cloud online. Live entity UI not exercised without HA; behavior covered by integration scaffold and fixtures. |
