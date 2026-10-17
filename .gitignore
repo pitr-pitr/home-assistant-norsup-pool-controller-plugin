@@ -10,3 +10,11 @@ venv/
 dist/
 web/node_modules/
 web/dist/
+
+# BEGIN LOOM PUBLIC GIT
+.loom/
+.cursor/
+AGENTS.md
+.cursorignore
+.coverage
+# END LOOM PUBLIC GIT
