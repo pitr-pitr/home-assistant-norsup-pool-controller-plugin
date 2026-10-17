@@ -82,6 +82,7 @@ config/
 ## Features
 
 - Sensors: water temperature, pH, ORP, pump speed (when returned by the API).
+- **Pool Health** Lovelace card: combined pH + ORP dashboard widget (see [INSTALL.md — Pool Health card](INSTALL.md#pool-health-lovelace-card)).
 - Binary sensors: pump running, cloud online.
 - Config and options flows with API key validation against live-status.
 - Options: poll interval, API key rotation, optional diagnostics sensor.

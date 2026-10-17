@@ -11,8 +11,15 @@ from homeassistant.helpers.update_coordinator import UpdateFailed
 
 from .const import DOMAIN
 from .coordinator import NorsupDataUpdateCoordinator, build_client
+from .frontend import async_register_frontend
 
 _LOGGER = logging.getLogger(__name__)
+
+
+async def async_setup(hass: HomeAssistant, config: dict) -> bool:
+    """Register Lovelace frontend assets."""
+    await async_register_frontend(hass)
+    return True
 
 PLATFORMS: list[Platform] = [
     Platform.BINARY_SENSOR,

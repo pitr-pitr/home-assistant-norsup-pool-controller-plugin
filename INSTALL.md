@@ -63,6 +63,27 @@ Copy the full UUID into the config flow field **Pool ID (UUID)**.
 
 After setup, entities appear under a single device (water temperature, pH, ORP, pump status, cloud connectivity, and related sensors). Optional diagnostics are available in the integration **Options** (requires reload).
 
+### Pool Health Lovelace card
+
+The integration serves a **Pool Health** dashboard card that visualizes chemistry from your **pH** and **ORP** entities (ring gauges and an overall status badge).
+
+1. **Restart** Home Assistant after installing or updating the integration (the card is registered on load).
+2. **Settings** → **Dashboards** → **Resources** → **Add resource**:
+   - **URL:** `/norsup_smartpool/pool-health-card.js`
+   - **Resource type:** JavaScript module
+3. Open your dashboard → **Edit** → **Add card** → **Manual** (or YAML mode) and use:
+
+```yaml
+type: custom:norsup-pool-health-card
+title: Pool health
+ph_entity: sensor.YOUR_PH_ENTITY
+orp_entity: sensor.YOUR_ORP_ENTITY
+```
+
+Replace the entity IDs with the **pH** and **ORP** sensors on your Norsup device (**Settings** → **Devices & services** → your pool → **Entities**). In the card picker you can also search for **Norsup Pool Health** after the resource is loaded.
+
+Optional tuning: `ph_min` / `ph_max` (default 6.8–8.0) and `orp_min` / `orp_max` (default 400–850) adjust the gauge scale.
+
 To **rotate credentials**, open the integration → **Configure** → update your portal password or API key; the new value is validated before it replaces the stored secret.
 
 ---

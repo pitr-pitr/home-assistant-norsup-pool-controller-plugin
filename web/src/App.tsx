@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import WhatsNew from '@loom/whats-new/WhatsNew'
 import whatsNewManifest from '@loom/whats-new/whats-new.json'
+import PoolHealthPreview from './PoolHealthPreview'
 import styles from './App.module.css'
 
 const HACS_REPO =
@@ -143,6 +144,34 @@ python scripts/debug_auth.py --verbose`}
             Exit <strong>0</strong> = OK · <strong>1</strong> = rejected (invalid auth) ·{' '}
             <strong>2</strong> = network/server error. Full steps:{' '}
             <a href={`${HACS_REPO}/blob/main/INSTALL.md#test-credentials-in-your-local-python-environment`} target="_blank" rel="noreferrer">
+              INSTALL.md
+            </a>
+            .
+          </p>
+        </section>
+
+        <section className={styles.cardWide} aria-labelledby="pool-health-title">
+          <h2 id="pool-health-title">Pool Health dashboard card</h2>
+          <p>
+            The integration ships a Lovelace card that combines your <strong>pH</strong> and{' '}
+            <strong>ORP</strong> sensors into one pool-health view (ring gauges + overall status).
+            After restart, add the resource once, then add the card to your dashboard.
+          </p>
+          <PoolHealthPreview />
+          <pre className={styles.codeBlock}>
+{`# Settings → Dashboards → Resources → Add resource
+url: /norsup_smartpool/pool-health-card.js
+type: module
+
+# Dashboard → Edit → Add card → Manual
+type: custom:norsup-pool-health-card
+ph_entity: sensor.<your_device>_ph
+orp_entity: sensor.<your_device>_orp`}
+          </pre>
+          <p>
+            Pick entity IDs from your Norsup device on the <strong>Entities</strong> tab. Full
+            steps:{' '}
+            <a href={`${HACS_REPO}/blob/main/INSTALL.md#pool-health-lovelace-card`} target="_blank" rel="noreferrer">
               INSTALL.md
             </a>
             .

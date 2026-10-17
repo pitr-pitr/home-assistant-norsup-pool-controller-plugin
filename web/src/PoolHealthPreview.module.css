@@ -1,0 +1,121 @@
+.card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 20px;
+  padding: 1.1rem 1.25rem 1.25rem;
+  color: #e8f7ff;
+  background:
+    radial-gradient(120% 80% at 100% 0%, rgba(56, 189, 248, 0.35), transparent 55%),
+    radial-gradient(90% 70% at 0% 100%, rgba(13, 148, 136, 0.45), transparent 50%),
+    linear-gradient(155deg, #042f3a 0%, #064e5e 42%, #0a3d4a 100%);
+  box-shadow: 0 12px 40px rgba(2, 44, 56, 0.35);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #e8f7ff;
+}
+
+.badge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(56, 189, 248, 0.3);
+  border-color: rgba(125, 211, 252, 0.45);
+}
+
+.gauges {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.gaugeBlock {
+  text-align: center;
+}
+
+.gauge {
+  position: relative;
+  max-width: 140px;
+  margin: 0 auto;
+}
+
+.gauge svg {
+  width: 100%;
+  display: block;
+  transform: rotate(-90deg);
+}
+
+.track {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.12);
+  stroke-width: 10;
+}
+
+.progress {
+  fill: none;
+  stroke: #34d399;
+  stroke-width: 10;
+  stroke-linecap: round;
+  stroke-dasharray: 339.292;
+  stroke-dashoffset: 68;
+}
+
+.gaugeCenter {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -58%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+}
+
+.gaugeValue {
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.gaugeUnit {
+  font-size: 0.65rem;
+  opacity: 0.75;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.gaugeBand {
+  margin-top: 0.15rem;
+  font-size: 0.68rem;
+  opacity: 0.9;
+}
+
+.metricLabel {
+  margin: 0.35rem 0 0;
+  font-size: 0.78rem;
+  font-weight: 600;
+  opacity: 0.92;
+}
+
+.footer {
+  margin: 0.85rem 0 0;
+  font-size: 0.68rem;
+  opacity: 0.65;
+  text-align: center;
+}
