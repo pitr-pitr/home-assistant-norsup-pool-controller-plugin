@@ -150,3 +150,82 @@ def merge_readings(data: NorsupPoolData, ph: float | None, rx: float | None) -> 
     if rx is not None:
         data.orp_mv = rx
     return data
+
+
+def _module_metrics(module: dict[str, Any] | None) -> dict[str, Any]:
+    if not isinstance(module, dict):
+        return {}
+    metrics = module.get("metrics")
+    return metrics if isinstance(metrics, dict) else {}
+
+
+def _module_status(module: dict[str, Any] | None) -> dict[str, Any]:
+    if not isinstance(module, dict):
+        return {}
+    status = module.get("status")
+    return status if isinstance(status, dict) else {}
+
+
+_PUMP_SPEED_NAMES = ("off", "low", "medium", "high", "maximum")
+
+
+def parse_rest_pool_list(payload: dict[str, Any] | list[Any]) -> list[tuple[str, str]]:
+    """Return (pool_id, name) pairs from GET /pool on the REST API host."""
+    items: Any = payload
+    if isinstance(payload, dict):
+        items = payload.get("items", payload)
+    if not isinstance(items, list):
+        return []
+    pools: list[tuple[str, str]] = []
+    for item in items:
+        if not isinstance(item, dict):
+            continue
+        pool_id = item.get("pid") or item.get("id")
+        if not pool_id:
+            continue
+        name = item.get("name") or f"Pool {str(pool_id)[:8]}"
+        pools.append((str(pool_id), str(name)))
+    return pools
+
+
+def parse_rest_pool(pool_id: str, payload: dict[str, Any]) -> NorsupPoolData:
+    """Map GET /pool/{pid} REST JSON into normalized fields."""
+    resolved_id = str(payload.get("pid") or payload.get("id") or pool_id)
+    online = payload.get("status", "online") == "online"
+
+    ph_mod = payload.get("ph") if isinstance(payload.get("ph"), dict) else {}
+    cl_mod = payload.get("cl") if isinstance(payload.get("cl"), dict) else {}
+    temp_mod = (
+        payload.get("temperature")
+        if isinstance(payload.get("temperature"), dict)
+        else {}
+    )
+    filter_mod = payload.get("filter") if isinstance(payload.get("filter"), dict) else {}
+
+    ph = _coerce_float(_module_metrics(ph_mod).get("actual"))
+    orp = _coerce_float(_module_metrics(cl_mod).get("actual"))
+    water_temp = _coerce_float(_module_metrics(temp_mod).get("water_temp"))
+
+    filter_status = _module_status(filter_mod)
+    filter_metrics = _module_metrics(filter_mod)
+    pump_status = _coerce_float(filter_status.get("pump_status"))
+    pump_speed_raw = _coerce_float(filter_metrics.get("pump_speed"))
+    pump_running = pump_status is not None and pump_status > 0
+    pump_speed: str | None = None
+    if pump_speed_raw is not None:
+        idx = int(pump_speed_raw)
+        if 0 <= idx < len(_PUMP_SPEED_NAMES):
+            pump_speed = _PUMP_SPEED_NAMES[idx]
+        else:
+            pump_speed = str(int(pump_speed_raw))
+
+    return NorsupPoolData(
+        pool_id=resolved_id,
+        online=online,
+        water_temperature_c=water_temp,
+        pump_running=pump_running,
+        pump_speed=pump_speed,
+        ph=ph,
+        orp_mv=orp,
+        live_status=dict(payload),
+    )

@@ -1,21 +1,12 @@
 {
-  "version": "2",
+  "version": "1",
   "entries": [
     {
-      "version": "2",
-      "date": "2026-10-16",
-      "title": "Install guide & HACS fix",
-      "items": [
-        "Companion web UI for HACS URL copy and API key setup steps.",
-        "HACS custom repository now uses the standard custom_components layout (fixes “No manifest.json” errors)."
-      ]
-    },
-    {
       "version": "1",
-      "date": "2026-10-16",
+      "date": "",
       "title": "Welcome",
       "items": [
-        "Norsup Smartpool Home Assistant integration with API key config flow."
+        "Your product is ready. Future updates will appear here."
       ]
     }
   ]

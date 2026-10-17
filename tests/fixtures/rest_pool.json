@@ -1,0 +1,20 @@
+{
+  "pid": "11111111-2222-3333-4444-555555555555",
+  "name": "Test Pool",
+  "status": "online",
+  "ph": {
+    "metrics": { "actual": 7.2 },
+    "status": { "status": 1 }
+  },
+  "cl": {
+    "metrics": { "actual": 650 },
+    "status": { "status": 1 }
+  },
+  "temperature": {
+    "metrics": { "water_temp": 24.5 }
+  },
+  "filter": {
+    "metrics": { "pump_speed": 2 },
+    "status": { "pump_status": 1 }
+  }
+}

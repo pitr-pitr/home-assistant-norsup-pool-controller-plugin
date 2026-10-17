@@ -23,13 +23,13 @@ You configure **one Home Assistant config entry per pool**. Multiple pools need 
 
 ## Obtaining an API key
 
-Norsup’s public manuals describe the **owner portal** (login, pool claim, MAC address). They do **not** always document a separate “API key” page for third-party apps. This integration expects a **secret string** that Smart Pool Connect accepts on authenticated API calls (typically as `Authorization: Bearer …` or `X-Api-Key`).
+Norsup’s public manuals describe the **owner portal** (login, pool claim, MAC address). For third-party apps, Smart Pool Connect issues **SPC REST API keys** (they start with `spc_`). Those keys authenticate against the REST host `https://api.smartpoolconnect.eu` with the `X-API-Key` header — **not** against `/api/live-status/…` on the owner portal (that path expects a browser session after OAuth login).
 
 1. **Sign in** to [Smart Pool Connect](https://www.smartpoolconnect.eu) with your pool owner account (legacy “Smart Pool Control” accounts use the same credentials on the OAuth host after the 2025 portal migration).
 2. **Claim your pool** if you have not already: follow Norsup’s in-portal steps using the **MAC address** shown on your NorsupOne display. This links the controller to your account.
 3. **Obtain the API key:**
    - If your portal has **Settings**, **Integrations**, **API**, or **Developer** section with an API key or access token, create or copy that value. That is what you paste into Home Assistant as **API key**.
-   - If you do not see an API key option, check Norsup support or your installer for whether **personal access tokens** are available for Smart Pool Connect. Until Norsup publishes official third-party API documentation, some accounts may only have portal session login; this integration validates using bearer-style headers against the live-status API—use whatever long-lived token Norsup provides for API access.
+   - If you do not see an API key option, use **Smart Pool Connect account (email & password)** in the config flow instead — that path uses OAuth and the portal live-status API.
 4. **Do not** use the small API key printed on the NorsupOne enclosure for installer pairing unless Norsup explicitly documents it for cloud API access (it is usually for on-site provisioning only).
 
 Store the key only in Home Assistant (config entry). Do not commit it to git or post it in issues.
@@ -54,15 +54,16 @@ Copy the full UUID into the config flow field **Pool ID (UUID)**.
 
 1. **Settings** → **Devices & services** → **Add integration**.
 2. Search for **Norsup Smartpool**.
-3. Enter:
-   - **API key** — from the section above.
-   - **Pool ID (UUID)** — from the portal URL.
-   - **API base URL** — leave default `https://www.smartpoolconnect.eu` unless Norsup instructed a different host.
-4. Submit. The integration calls the cloud **live-status** endpoint to verify the key and pool ID before saving.
+3. Choose **Smart Pool Connect account (email & password)** — this is what the website and mobile app use. Session cookies authenticate API calls; you do **not** need a separate bearer token for most accounts.
+4. Enter your **email** and **password** (same as [smartpoolconnect.eu](https://www.smartpoolconnect.eu)).
+5. **Pool ID (UUID)** is optional when you have a single pool; the integration discovers it from your account. If you have multiple pools, pick one in the next step.
+6. **API base URL** — leave default unless Norsup instructed a different host.
+
+**API key:** choose **SPC API key** and paste your `spc_…` key from the portal. **Pool ID is optional** — the integration lists pools from `GET https://api.smartpoolconnect.eu/pool` and picks the only pool automatically. A 36-character UUID from the portal URL is the **pool ID**, not the API key.
 
 After setup, entities appear under a single device (water temperature, pH, ORP, pump status, cloud connectivity, and related sensors). Optional diagnostics are available in the integration **Options** (requires reload).
 
-To **rotate the API key**, open the integration → **Configure** → update the key; the new value is validated before it replaces the stored secret.
+To **rotate credentials**, open the integration → **Configure** → update your portal password or API key; the new value is validated before it replaces the stored secret.
 
 ---
 
@@ -79,19 +80,61 @@ If HACS reports that no `manifest.json` was found:
 3. Ensure `hacs.json` on the default branch does **not** set `"content_in_root": true` (that mode expects `manifest.json` at the repository root, which this integration does not use). Pull the latest `main` from GitHub after updating the repo.
 4. After a successful add, open **HACS** → **Integrations**, search **Norsup Smartpool**, install, then restart Home Assistant.
 
+### HACS shows a generic “Create a plugin…” description
+
+HACS does **not** read `hacs.json` or `manifest.json` for the one-line summary in the integration list. It shows the **GitHub repository description** from [github.com/pitr-pitr/home-assistant-norsup-pool-controller-plugin](https://github.com/pitr-pitr/home-assistant-norsup-pool-controller-plugin).
+
+This repo stores the intended HACS blurb in [`.github/repository-description`](.github/repository-description). Pushing that file to `main` runs the **Sync repository metadata** workflow (or trigger it manually under **Actions**) so GitHub’s description updates. After that, use **HACS** → **Integrations** → **⋮** → **Update** (or remove and re-add the custom repository) to refresh the cached text.
+
+The longer install text in HACS detail view comes from [`info.md`](info.md) at the repository root.
+
 ### Invalid API key or pool ID
 
 Symptoms: Config flow error *Invalid API key or pool ID*, or entities stay unavailable after setup.
 
 Checks:
 
-1. **Pool ID** matches the UUID in the portal URL exactly (including hyphens).
-2. **API key** has no leading or trailing spaces; re-copy from the portal.
-3. The pool is **claimed** to your account and visible in the portal.
-4. Your Norsup account can open the pool in a browser while you test (confirms cloud access).
-5. Re-enter credentials via **Configure** on the integration (options flow).
+1. Prefer **portal login** (email/password) instead of API key unless Norsup gave you a bearer token.
+2. **Pool ID** matches the UUID in the portal URL exactly (including hyphens) when you enter it manually.
+3. **API key** has no leading or trailing spaces; do not paste your pool UUID into the API key field.
+4. The pool is **claimed** to your account and visible in the portal.
+5. Your Norsup account can open the pool in a browser while you test (confirms cloud access).
+6. Re-enter credentials via **Configure** on the integration (options flow).
 
-If the key was revoked or expired in the portal, generate a new one and update Home Assistant.
+If API key mode fails, run `python scripts/debug_auth.py --verbose` and confirm `GET https://api.smartpoolconnect.eu/pool` returns HTTP 200 with `X-API-Key`. HTTP 401 on `www.smartpoolconnect.eu/api/live-status/…` is expected for API keys — use portal login for that host instead.
+
+### Test credentials in your local Python environment
+
+Before changing Home Assistant, run the same **REST `/pool`** check the API-key config flow uses. From a clone of this repository (workspace root):
+
+```bash
+cd /path/to/this/repo
+
+python -m pip install -r requirements-dev.txt   # or: pip install aiohttp
+
+export NORSUP_POOL_ID='xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
+export NORSUP_API_KEY='your-secret'
+# optional; default is https://www.smartpoolconnect.eu
+# export NORSUP_BASE_URL='https://www.smartpoolconnect.eu'
+
+python scripts/debug_auth.py
+
+# Recommended when Bearer / X-Api-Key return 401:
+export NORSUP_EMAIL='you@example.com'
+export NORSUP_PASSWORD='your-portal-password'
+python scripts/debug_auth.py --portal
+python scripts/debug_auth.py --portal --verbose --insecure
+```
+
+- **Exit 0** — credentials work; HA setup should accept the same pool ID and key (or portal login).
+- **Exit 1** — authentication rejected (same as HA `invalid_auth`). Try `--portal` with your smartpoolconnect.eu password instead of an API key.
+- **Exit 2** — network or server error (not an invalid key).
+
+Add `--verbose` to print HTTP status for `X-API-Key` on the REST API and (for comparison) legacy portal live-status probes. The script never prints your API key. **Pool ID is optional** when your key has access to a single pool.
+
+If the script fails with an SSL or certificate error (common on macOS with the python.org installer before CA bundles are installed), add **`--insecure`** for a **local-only** check that skips TLS verification. Home Assistant still verifies certificates; fix your Python CA store for production use (`Install Certificates.command` in the Python folder, or `pip install certifi` and follow your OS docs).
+
+You can pass flags instead of environment variables: `python scripts/debug_auth.py --pool-id … --api-key …`.
 
 ### Cloud outage or “cannot connect”
 

@@ -3,21 +3,47 @@
     "step": {
       "user": {
         "title": "Connect to Norsup Smartpool",
-        "description": "Enter your Smart Pool Connect credentials for one pool. See INSTALL.md (Obtaining an API key) for how to get your API key.",
+        "description": "Most owners sign in with the same email and password as smartpoolconnect.eu. Use API key only if Norsup issued a bearer token.",
+        "data": {
+          "auth_method": "Authentication method"
+        }
+      },
+      "api_key": {
+        "title": "SPC API key",
+        "description": "Paste the API key from the Smart Pool Connect portal (starts with spc_). Pool ID is optional — leave empty to auto-discover.",
         "data": {
           "api_key": "API key",
-          "pool_id": "Pool ID (UUID)",
-          "base_url": "API base URL (optional)"
+          "pool_id": "Pool ID (optional)",
+          "base_url": "Portal base URL (optional)"
         },
         "data_description": {
-          "api_key": "Long-lived token from Smart Pool Connect. See INSTALL.md → Obtaining an API key.",
-          "pool_id": "UUID from the portal URL when you open your pool (INSTALL.md → Finding your Pool ID)."
+          "api_key": "SPC REST API key (spc_…), not your portal password or pool UUID.",
+          "pool_id": "Only needed if you have multiple pools; otherwise discovered from the API key."
+        }
+      },
+      "portal": {
+        "title": "Smart Pool Connect account",
+        "description": "Same login as the website or mobile app. Leave Pool ID empty to auto-discover pools on your account.",
+        "data": {
+          "username": "Email",
+          "password": "Password",
+          "pool_id": "Pool ID (optional)",
+          "base_url": "API base URL (optional)"
+        }
+      },
+      "choose_pool": {
+        "title": "Choose pool",
+        "description": "Your account has multiple pools. Select one for this Home Assistant entry.",
+        "data": {
+          "pool_id": "Pool"
         }
       }
     },
     "error": {
       "cannot_connect": "Could not reach Smart Pool Connect. Check your network and base URL.",
-      "invalid_auth": "Invalid API key or pool ID. Verify credentials in the Smart Pool Connect portal.",
+      "invalid_auth": "Login or API key rejected. For portal login use your smartpoolconnect.eu email and password.",
+      "invalid_pool_id": "Pool ID must be a UUID (xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx). Copy it from the portal URL.",
+      "no_pools": "Logged in but no pools were found. Claim your pool in the portal first.",
       "unknown": "Unexpected error. Check Home Assistant logs for details."
     },
     "abort": {
@@ -41,9 +67,10 @@
     "step": {
       "init": {
         "title": "Update Norsup Smartpool options",
-        "description": "Rotate your API key or change the poll interval. The new key is validated before saving.",
+        "description": "Update your portal password or API key and change the poll interval.",
         "data": {
           "api_key": "API key",
+          "password": "Portal password",
           "scan_interval": "Update interval (seconds)",
           "enable_diagnostics": "Enable diagnostics sensor (reload integration after change)"
         }
@@ -51,8 +78,9 @@
     },
     "error": {
       "cannot_connect": "Could not reach Smart Pool Connect. Check your network.",
-      "invalid_auth": "Invalid API key. The previous key was kept.",
-      "unknown": "Unexpected error while validating the API key."
+      "invalid_auth": "Credentials rejected. The previous secret was kept.",
+      "invalid_pool_id": "Pool ID must be a UUID. Reconfigure the integration if the stored pool ID is invalid.",
+      "unknown": "Unexpected error while validating credentials."
     }
   }
 }

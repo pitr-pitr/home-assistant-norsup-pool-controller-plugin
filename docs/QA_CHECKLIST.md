@@ -3,7 +3,7 @@
 **Task:** Install path, config UX, and entity usability  
 **Date:** 2026-10-16  
 **Reviewer:** Loom Product QA (automated review + pytest; no live Home Assistant instance in CI workspace)  
-**Integration version:** 0.1.0 (`manifest.json`)
+**Integration version:** 0.1.1 (`manifest.json`)
 
 ## Environment
 
@@ -11,7 +11,7 @@
 |------|--------|
 | HA version targeted | ≥ 2024.1.0 per `hacs.json` / README |
 | Live HA clean-room install | Not run (no HA Core/Container in QA workspace) |
-| Automated verification | `python3 -m pytest tests/` — **16 passed** |
+| Automated verification | `python3 -m pytest tests/` — **17 passed** |
 
 ## Core flows
 
@@ -19,7 +19,7 @@
 |-------|--------|----------|
 | **HACS install path** | **Pass** | `hacs.json` valid (no `content_in_root`; country; min HA). README + companion UI use repo `pitr-pitr/home-assistant-norsup-pool-controller-plugin`. Integration category; manifest at `custom_components/norsup_smartpool/manifest.json` (fixes HACS “No manifest.json” when `content_in_root` was true). |
 | **Manual install path** | **Pass** | README manual section: copy `custom_components/norsup_smartpool` to `<config>/custom_components/`, restart, add integration. `dist/norsup_smartpool-0.1.0.zip` present for release-style manual download. INSTALL.md aligns with config flow fields. |
-| **Invalid API key / pool ID** | **Pass** | `tests/test_config_flow.py`: malformed UUID → `invalid_auth` without API call; HTTP 401 → `invalid_auth`, no config entry. `strings.json` errors: “Invalid API key or pool ID…” and connection message for network failures. Options flow keeps previous key on failed rotation (`test_options_flow_invalid_key`). |
+| **Invalid API key / pool ID** | **Pass** | `tests/test_config_flow.py`: malformed UUID → `invalid_pool_id` without API call; HTTP 401 → `invalid_auth`, no config entry. `translations/en.json` (+ `nl.json`, `de.json`) supply config-flow labels and errors so HA does not show raw keys like `invalid_auth`. Options flow keeps previous key on failed rotation (`test_options_flow_invalid_key`). |
 | **Successful entity creation** | **Pass (code + tests)** | Config flow success test creates entry with pool unique_id. Platforms `sensor` + `binary_sensor` register temperature, pH, ORP, pump speed, pump running, cloud online. Live entity UI not exercised without HA; behavior covered by integration scaffold and fixtures. |
 
 ## Acceptance criteria

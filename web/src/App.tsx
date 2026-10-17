@@ -44,8 +44,9 @@ export default function App() {
         <p className={styles.kicker}>Smart Pool Connect · Home Assistant</p>
         <h1>Norsup Smartpool</h1>
         <p className={styles.lead}>
-          Unofficial integration for Norsup pools. Connect with your Smartpool API key and pool
-          UUID, then monitor chemistry and pump status from Home Assistant.
+          Unofficial integration for Norsup pools. Sign in with your Smart Pool Connect email and
+          password (pool UUID optional), or use a Norsup-issued bearer token. Monitor chemistry and
+          pump status from Home Assistant.
         </p>
         {info ? (
           <p className={styles.version}>
@@ -88,10 +89,12 @@ export default function App() {
         </section>
 
         <section className={styles.card} aria-labelledby="key-title">
-          <h2 id="key-title">API key setup</h2>
+          <h2 id="key-title">Sign in (recommended)</h2>
           <p>
-            You need a Smart Pool Connect account and a cloud API key (or bearer token) plus your pool
-            UUID from the portal URL.
+            In Home Assistant choose <strong>Smart Pool Connect account</strong> and use the same email
+            and password as the website. Pool UUID is optional when you have one pool — the integration
+            discovers it. <strong>SPC API keys</strong> (<code>spc_…</code>) use the REST API at{' '}
+            <code>api.smartpoolconnect.eu</code> — not the portal live-status URL.
           </p>
           <ul className={styles.checklist}>
             <li>
@@ -113,6 +116,36 @@ export default function App() {
               INSTALL.md on GitHub
             </a>
             . Never paste API keys into issues or this page.
+          </p>
+        </section>
+
+        <section className={styles.card} aria-labelledby="debug-title">
+          <h2 id="debug-title">Debug invalid auth locally</h2>
+          <p>
+            If Home Assistant shows <strong>invalid auth</strong>, test the same cloud check in your
+            local Python environment (this repo clone). For API keys it calls{' '}
+            <code>GET /pool</code> on the REST host with <code>X-API-Key</code> (same as Home
+            Assistant). Pool ID is optional when you have one pool. If you see a certificate/SSL error
+            on macOS, add <code>--insecure</code> (debug only).
+          </p>
+          <pre className={styles.codeBlock}>
+{`python -m pip install -r requirements-dev.txt
+export NORSUP_EMAIL='you@example.com'
+export NORSUP_PASSWORD='portal-password'
+python scripts/debug_auth.py --portal
+python scripts/debug_auth.py --portal --insecure   # skip TLS verify, local debug only
+
+# SPC API key (pool id optional):
+export NORSUP_API_KEY='spc_your_key'
+python scripts/debug_auth.py --verbose`}
+          </pre>
+          <p>
+            Exit <strong>0</strong> = OK · <strong>1</strong> = rejected (invalid auth) ·{' '}
+            <strong>2</strong> = network/server error. Full steps:{' '}
+            <a href={`${HACS_REPO}/blob/main/INSTALL.md#test-credentials-in-your-local-python-environment`} target="_blank" rel="noreferrer">
+              INSTALL.md
+            </a>
+            .
           </p>
         </section>
 

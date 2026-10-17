@@ -46,7 +46,7 @@ Open `http://127.0.0.1:8044/` (API: `/v1/health`, `/v1/integration`). Use any fr
 3. Add this repository:
    - **Repository:** `https://github.com/pitr-pitr/home-assistant-norsup-pool-controller-plugin`
    - **Category:** Integration
-4. **Download** the integration from HACS (search **Norsup Smartpool**).
+4. **Download** the integration from HACS (search **Norsup Smartpool**). The short line under the name in HACS is the **GitHub repository description** (kept in [`.github/repository-description`](.github/repository-description), synced on push to `main`); see [INSTALL.md — HACS description](INSTALL.md#hacs-shows-a-generic-create-a-plugin-description) if it still shows an old Loom placeholder.
 5. If HACS shows *No manifest.json file found*, see [INSTALL.md — HACS troubleshooting](INSTALL.md#hacs-no-manifestjson-file-found) (usually `content_in_root` on an older `hacs.json` — use latest `main`).
 6. **Restart** Home Assistant.
 7. **Settings** → **Devices & services** → **Add integration** → **Norsup Smartpool**, then follow [INSTALL.md](INSTALL.md#configure-in-home-assistant).
@@ -93,6 +93,8 @@ Writable controls are only exposed when the API supports them (no fake switches)
 ## Troubleshooting
 
 See [INSTALL.md — Troubleshooting](INSTALL.md#troubleshooting) for invalid keys, cloud outages, and **debug logging without sharing secrets**.
+
+To test your API key and pool UUID **outside Home Assistant**, use `scripts/debug_auth.py` — see [INSTALL.md — Test credentials locally](INSTALL.md#test-credentials-in-your-local-python-environment).
 
 ### Security
 

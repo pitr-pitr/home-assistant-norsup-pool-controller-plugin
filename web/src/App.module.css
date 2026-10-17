@@ -147,6 +147,19 @@
   font-weight: 500;
 }
 
+.codeBlock {
+  margin: 0.75rem 0 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: 0.65rem;
+  background: rgba(4, 47, 46, 0.92);
+  border: 1px solid var(--panel-border);
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: var(--foam);
+  overflow-x: auto;
+  white-space: pre-wrap;
+}
+
 .footer {
   margin-top: 2.5rem;
   padding-top: 1.25rem;

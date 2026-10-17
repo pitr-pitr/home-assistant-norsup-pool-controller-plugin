@@ -1,0 +1,60 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Verbinden met Norsup Smartpool",
+        "description": "Vul je Smart Pool Connect-gegevens in voor één zwembad. Zie INSTALL.md (API-sleutel verkrijgen) voor hoe je een API-sleutel krijgt.",
+        "data": {
+          "api_key": "API-sleutel",
+          "pool_id": "Pool-ID (UUID)",
+          "base_url": "API-basis-URL (optioneel)"
+        },
+        "data_description": {
+          "api_key": "Langdurig token van Smart Pool Connect. Zie INSTALL.md → API-sleutel verkrijgen.",
+          "pool_id": "UUID uit de portal-URL wanneer je je zwembad opent (INSTALL.md → Je pool-ID vinden)."
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Kan Smart Pool Connect niet bereiken. Controleer je netwerk en basis-URL.",
+      "invalid_auth": "Ongeldige API-sleutel of pool-ID. Controleer je gegevens in het Smart Pool Connect-portaal.",
+      "invalid_pool_id": "Pool-ID moet een UUID zijn (xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx). Kopieer deze uit de portal-URL.",
+      "unknown": "Onverwachte fout. Bekijk de Home Assistant-logboeken voor details."
+    },
+    "abort": {
+      "already_configured": "Dit zwembad is al geconfigureerd."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "water_temperature": { "name": "Watertemperatuur" },
+      "ph": { "name": "pH" },
+      "orp": { "name": "ORP" },
+      "pump_speed": { "name": "Pompsnelheid" },
+      "diagnostics": { "name": "Diagnostiek" }
+    },
+    "binary_sensor": {
+      "pump_running": { "name": "Pomp actief" },
+      "cloud_online": { "name": "Cloud online" }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Norsup Smartpool-opties bijwerken",
+        "description": "Vervang je API-sleutel of wijzig het ophaalinterval. De nieuwe sleutel wordt gevalideerd voordat deze wordt opgeslagen.",
+        "data": {
+          "api_key": "API-sleutel",
+          "scan_interval": "Update-interval (seconden)",
+          "enable_diagnostics": "Diagnosesensor inschakelen (herlaad integratie na wijziging)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Kan Smart Pool Connect niet bereiken. Controleer je netwerk.",
+      "invalid_auth": "Ongeldige API-sleutel. De vorige sleutel is behouden.",
+      "invalid_pool_id": "Pool-ID moet een UUID zijn. Configureer de integratie opnieuw als het opgeslagen pool-ID ongeldig is.",
+      "unknown": "Onverwachte fout bij het valideren van de API-sleutel."
+    }
+  }
+}

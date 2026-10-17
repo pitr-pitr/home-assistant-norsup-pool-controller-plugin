@@ -17,11 +17,19 @@ from .api import (
     NorsupTransientError,
 )
 from .const import (
+    AUTH_TYPE_PORTAL,
+    CONF_API_BASE_URL,
     CONF_API_KEY,
+    CONF_AUTH_TYPE,
     CONF_BASE_URL,
+    CONF_OAUTH_BASE_URL,
+    CONF_PASSWORD,
     CONF_POOL_ID,
     CONF_SCAN_INTERVAL,
+    CONF_USERNAME,
+    DEFAULT_API_BASE_URL,
     DEFAULT_BASE_URL,
+    DEFAULT_OAUTH_BASE_URL,
     DEFAULT_SCAN_INTERVAL,
 )
 
@@ -60,7 +68,7 @@ class NorsupDataUpdateCoordinator(DataUpdateCoordinator[NorsupPoolData]):
         except NorsupAuthError as err:
             self._register_failure()
             raise UpdateFailed(
-                "Authentication failed; check API key in integration options"
+                "Authentication failed; check portal password or API key in integration options"
             ) from err
         except (NorsupTransientError, NorsupConnectionError) as err:
             self._register_failure()
@@ -87,12 +95,25 @@ class NorsupDataUpdateCoordinator(DataUpdateCoordinator[NorsupPoolData]):
 
 def build_client(hass: HomeAssistant, entry: ConfigEntry) -> NorsupApiClient:
     """Create an API client from config entry data."""
+    import aiohttp
     from homeassistant.helpers import aiohttp_client
 
-    session = aiohttp_client.async_get_clientsession(hass)
+    portal = entry.data.get(CONF_AUTH_TYPE) == AUTH_TYPE_PORTAL
+    if portal:
+        session = aiohttp_client.async_create_clientsession(
+            hass, cookie_jar=aiohttp.CookieJar(unsafe=True)
+        )
+    else:
+        session = aiohttp_client.async_get_clientsession(hass)
+
     return NorsupApiClient(
         session,
         entry.data[CONF_POOL_ID],
-        entry.data[CONF_API_KEY],
+        entry.data.get(CONF_API_KEY),
         entry.data.get(CONF_BASE_URL, DEFAULT_BASE_URL),
+        api_base_url=entry.data.get(CONF_API_BASE_URL, DEFAULT_API_BASE_URL),
+        username=entry.data.get(CONF_USERNAME) if portal else None,
+        password=entry.data.get(CONF_PASSWORD) if portal else None,
+        oauth_base_url=entry.data.get(CONF_OAUTH_BASE_URL, DEFAULT_OAUTH_BASE_URL),
+        auth_type=entry.data.get(CONF_AUTH_TYPE),
     )

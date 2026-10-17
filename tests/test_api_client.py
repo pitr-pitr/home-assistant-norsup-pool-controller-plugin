@@ -17,12 +17,22 @@ from custom_components.norsup_smartpool.api import (
 from custom_components.norsup_smartpool.api.models import (
     parse_live_status,
     parse_pool_data_readings,
+    parse_rest_pool,
 )
+from custom_components.norsup_smartpool.const import DEFAULT_API_BASE_URL
 
 FIXTURES = Path(__file__).parent / "fixtures"
 POOL_ID = "11111111-2222-3333-4444-555555555555"
-GOOD_KEY = "test_api_key_secret"
+GOOD_KEY = "spc_test_api_key_secret_value"
 BASE = "https://test.example"
+
+
+def _rest_pools_url() -> str:
+    return f"{DEFAULT_API_BASE_URL}/pool"
+
+
+def _rest_pool_url() -> str:
+    return f"{DEFAULT_API_BASE_URL}/pool/{POOL_ID}"
 
 
 def _live_url() -> str:
@@ -39,33 +49,29 @@ def _pool_data_url() -> str:
 
 @pytest.mark.asyncio
 async def test_async_validate_api_key_success() -> None:
-    live_status = json.loads((FIXTURES / "live_status.json").read_text())
+    pool_list = json.loads((FIXTURES / "rest_pool_list.json").read_text())
     with aioresponses() as m:
-        m.get(_live_url(), payload=live_status)
+        m.get(_rest_pools_url(), payload=pool_list)
         async with aiohttp.ClientSession() as session:
             payload = await async_validate_api_key(session, POOL_ID, GOOD_KEY, BASE)
-    assert payload["online"] is True
+    assert "items" in payload
 
 
 @pytest.mark.asyncio
 async def test_async_validate_api_key_invalid() -> None:
     with aioresponses() as m:
-        m.get(_live_url(), status=401, repeat=True)
+        m.get(_rest_pools_url(), status=401, repeat=True)
         async with aiohttp.ClientSession() as session:
             with pytest.raises(NorsupAuthError):
                 await async_validate_api_key(session, POOL_ID, "wrong-key", BASE)
 
 
 @pytest.mark.asyncio
-async def test_async_get_pool_data_parses_endpoints() -> None:
-    live_status = json.loads((FIXTURES / "live_status.json").read_text())
-    pool_status = json.loads((FIXTURES / "pool_status.json").read_text())
-    pool_data = (FIXTURES / "pool_data.json").read_text()
+async def test_async_get_pool_data_parses_rest_endpoint() -> None:
+    rest_pool = json.loads((FIXTURES / "rest_pool.json").read_text())
 
     with aioresponses() as m:
-        m.get(_live_url(), payload=live_status)
-        m.get(_pool_status_url(), payload=pool_status)
-        m.get(_pool_data_url(), body=pool_data)
+        m.get(_rest_pool_url(), payload=rest_pool)
         async with aiohttp.ClientSession() as session:
             client = NorsupApiClient(session, POOL_ID, GOOD_KEY, BASE)
             data = await client.async_get_pool_data()
@@ -82,11 +88,11 @@ async def test_async_get_pool_data_parses_endpoints() -> None:
 @pytest.mark.asyncio
 async def test_server_error_raises_transient() -> None:
     with aioresponses() as m:
-        m.get(_live_url(), status=503, repeat=True)
+        m.get(_rest_pool_url(), status=503, repeat=True)
         async with aiohttp.ClientSession() as session:
             client = NorsupApiClient(session, POOL_ID, GOOD_KEY, BASE)
             with pytest.raises(NorsupTransientError):
-                await client.async_get_live_status()
+                await client.async_get_pool_data()
 
 
 def test_parse_pool_data_readings_from_text() -> None:
@@ -99,3 +105,9 @@ def test_parse_live_status_missing_fields() -> None:
     data = parse_live_status(POOL_ID, {})
     assert data.water_temperature_c is None
     assert data.ph is None
+
+
+def test_parse_rest_pool_fixture() -> None:
+    rest_pool = json.loads((FIXTURES / "rest_pool.json").read_text())
+    data = parse_rest_pool(POOL_ID, rest_pool)
+    assert data.ph == 7.2

@@ -22,9 +22,16 @@ You are attached to Loom project 44 (Home Assistant Norsup Pool controller plugi
 Workspace: /Users/pitrjansen/code/loom/apps/api/workspaces/44-home-assistant-norsup-pool-controller-plugin/source
 
 
-Project objective: Provide the plugin. Provide instructions on how to install it. Use Github to release the plugin.
+Original brief: Provide the plugin. Provide instructions on how to install it. Use Github to release the plugin.
 Description: Create a plugin that supports the latest Norsup API (smartpool). Requires an APi key to be set up.
 
+User iterations after the original brief, oldest first. These are the product requirements. Where they conflict with the original objective, follow the latest iteration. Loom checks the product files against this list before accepting completion.
+1. [done] See the attached file(s) and implement the change they describe.
+2. [done] getting invalid auth again. could you add a debug script and tell me how to run that locally to test the code? Locally I mean in this local python env. Make sure to deliver that info somewhere in this interface.
+3. [done] I think its a python certificate issue, I did run the command but didnt get a fix. can you ignore certificates in the test cmd?
+4. [done] Norsup Smartpool — local auth check base_url: https://www.smartpoolconnect.eu pool_id: 833f31e4…fd12 (len=36) api_key: len=36 (value not printed) WARNING: TLS verification disabled (--insecure) — local debug only.
+5. [done] api key auth should just work. I have proven that with a previous implementation. check if you're using the correct endpoints, optionally look at the other loom project that already has implemented this
+6. [done] fix description in the hacs plugin:
 
 Relevant project memory:
 - constraint: Paid or licensed data needs a Decision
@@ -39,10 +46,26 @@ Ship a small, calm 'Made with Loom' mark on primary surfaces (footer or subtle c
 - constraint: Distinct visual identity per product
 Every Loom-built product must have its own visual direction: distinctive typography, palette, and atmosphere suited to the domain. Do not ship a generic AI template look (default Inter/Roboto, purple-on-white gradients, identical card grids). Fail Product QA if the UI could belong to any other generated app after removing the product name.
 
-Task: Product QA: Install path, config UX, and entity usability review
-Description: Execute a clean-room install per INSTALL.md on a supported Home Assistant version (Core or Container). Verify first-time setup with API key, entity discoverability in Overview, and that error states are understandable. Confirm branding/docs feel specific to Norsup pool owners (not generic template text). For HA integrations, treat clear config labels, device grouping, and install doc accuracy as the core UX bar.
-Acceptance criteria: ['QA checklist document (docs/QA_CHECKLIST.md) is filled with pass/fail for HACS install, manual install, invalid API key, and successful entity creation.', 'Config flow field labels mention API key and link to INSTALL.md section for obtaining it.', 'All entities for one pool appear under one device with a recognizable name (e.g. Norsup Smartpool).', 'No secrets appear in default info-level logs during normal operation.', 'Blocking issues found are filed or fixed before sign-off; sign-off note recorded in QA checklist.']
-Assigned role: product_qa
+Task: Improve application: fix description in the hacs plugin:
+Description: Improve the existing application without rebuilding it from scratch. Requested change:
+
+fix description in the hacs plugin:
+
+"Create a plugin .."   is the prompt, not what the description should be
+
+Attached files (open these in the workspace and use them for this change):
+- `.loom/improve-attachments/20261017-194640/image.png`
+Acceptance criteria: The existing application implements this requested improvement while preserving current working behavior:
+
+fix description in the hacs plugin:
+
+"Create a plugin .."   is the prompt, not what the description should be
+
+Attached files (open these in the workspace and use them for this change):
+- `.loom/improve-attachments/20261017-194640/image.png`
+
+This request has no safe deterministic file check. Review it against the request and current product.
+Assigned role: builder
 
 
 Use Loom MCP tools for project state. Use Cursor tools for files and shell.
@@ -53,8 +76,8 @@ When finished, call task_finish, then task_next. If task_next returns a job, fol
 - Tools: context_get, plan_set_tasks, roadmap_set, roadmap_sync_file, task_finish, task_next, memory_add, decision_request, decision_list, files_list, processes_list, processes_start, processes_stop
 - MCP URL: http://127.0.0.1:8000/mcp/
 - X-Loom-Project-Id: 44
-- X-Loom-Run-Id: 4287
-- X-Loom-Task-Id: 817
+- X-Loom-Run-Id: 4476
+- X-Loom-Task-Id: 858
 
 This folder is the product workspace root. Use Cursor Read/Write/Glob here, including `.loom/prompt.md`. Call `context_get` first, then do the work, then `task_finish`. After `task_finish`, call `task_next`. If it returns a job, follow that prompt immediately in the same turn. Repeat until `task_next` returns no_job.
 

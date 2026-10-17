@@ -1,0 +1,36 @@
+name: Sync repository metadata
+
+# HACS shows the GitHub repository description in the integration list (not hacs.json).
+# Keep .github/repository-description in sync with what users should see in HACS.
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - ".github/repository-description"
+      - ".github/workflows/sync-repo-metadata.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  description:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Update GitHub repository description
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require("fs");
+            const description = fs
+              .readFileSync(".github/repository-description", "utf8")
+              .trim();
+            await github.rest.repos.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              description,
+            });

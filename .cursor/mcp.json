@@ -8,9 +8,9 @@
         "--project-id",
         "44",
         "--run-id",
-        "4287",
+        "4476",
         "--task-id",
-        "817"
+        "858"
       ],
       "env": {
         "PYTHONPATH": "/Users/pitrjansen/code/loom/apps/api",
