@@ -139,8 +139,26 @@ def _client_session(insecure: bool) -> aiohttp.ClientSession:
     return aiohttp.ClientSession()
 
 
+def _print_normalized_targets(snapshot: dict[str, Any]) -> None:
+    """Highlight pH/ORP targets mapped the same way as Home Assistant entities."""
+    normalized = snapshot.get("normalized")
+    if not isinstance(normalized, dict):
+        return
+    ph_target = normalized.get("ph_target")
+    orp_target = normalized.get("orp_target")
+    print()
+    print("Dosing targets (same as HA sensors ph_target / orp_target):")
+    print(f"  ph_target:  {ph_target!r}  (API: ph.config.target)")
+    print(f"  orp_target: {orp_target!r}  (API: cl.config.clm.target or cl.config.target)")
+    if orp_target is None:
+        print(
+            "  hint: if ORP target is null, inspect rest_pool.cl.config in the JSON file."
+        )
+
+
 def _emit_api_snapshot(snapshot: dict[str, Any], output_path: Path) -> None:
     """Print and persist the full API debug snapshot."""
+    _print_normalized_targets(snapshot)
     text = json.dumps(snapshot, indent=2, sort_keys=True, default=str)
     print()
     print("Full API snapshot (all endpoint payloads):")

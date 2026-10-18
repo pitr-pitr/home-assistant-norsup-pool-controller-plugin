@@ -216,6 +216,64 @@ python scripts/debug_auth.py --verbose`}
           </p>
         </section>
 
+        <section className={styles.cardWide} aria-labelledby="targets-title">
+          <h2 id="targets-title">pH &amp; ORP targets (doelwaarden)</h2>
+          <p>
+            Dosing <strong>targets</strong> come from <code>GET /pool/&lt;pool_id&gt;</code> on the REST
+            API — not from the live pH/ORP sensor readings. The integration maps them to Home Assistant
+            sensors you can use on the Pool Health card.
+          </p>
+          <table className={styles.targetTable}>
+            <thead>
+              <tr>
+                <th scope="col">Goal</th>
+                <th scope="col">Path in API JSON</th>
+                <th scope="col">Home Assistant</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>pH target / pH-doel</td>
+                <td><code>ph.config.target</code></td>
+                <td>
+                  Sensor <strong>pH target</strong> (<em>pH-doel</em>) — entity id ends with{' '}
+                  <code>_ph_target</code>
+                </td>
+              </tr>
+              <tr>
+                <td>ORP target / ORP-doel</td>
+                <td>
+                  <code>cl.config.clm.target</code> (V3) or <code>cl.config.target</code> /{' '}
+                  <code>cl.config.rx_target</code>
+                </td>
+                <td>
+                  Sensor <strong>ORP target</strong> (<em>ORP-doel</em>) — entity id ends with{' '}
+                  <code>_orp_target</code>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <p>
+            <strong>Find them:</strong> Settings → Devices &amp; services → your Norsup pool →{' '}
+            <strong>Entities</strong>. Search for <code>ph_target</code> or <code>orp_target</code>.
+            Live chemistry uses <code>ph.metrics.actual</code> and <code>cl.metrics.clm</code> (ORP mV) —
+            those are your <code>_ph</code> and <code>_orp</code> sensors, not the targets.
+          </p>
+          <p>
+            <code>scripts/debug_auth.py</code> prints <code>ph_target</code> / <code>orp_target</code> from
+            the <code>normalized</code> block and writes the full dump to <code>norsup_api_dump.json</code>.
+            Full reference:{' '}
+            <a
+              href={`${HACS_REPO}/blob/main/INSTALL.md#ph-and-orp-target-values`}
+              target="_blank"
+              rel="noreferrer"
+            >
+              INSTALL.md
+            </a>
+            .
+          </p>
+        </section>
+
         <section className={styles.cardWide} aria-labelledby="pool-health-title">
           <h2 id="pool-health-title">Pool Health dashboard card</h2>
           <p>

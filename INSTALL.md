@@ -63,6 +63,37 @@ Copy the full UUID into the config flow field **Pool ID (UUID)**.
 
 After setup, entities appear under a single device. **Enabled by default (typical API-key pool):** about **28** sensors (water and ambient temperature, pH/ORP and targets, TDS salt, pump speed/current, dosing and filter status codes, three filter schedules × start/stop/speed/days, configured pump speed, live pump speed code) and about **15** binary sensors (pump running, cloud online, filter always active, three schedule enabled flags, four aux outputs, sensor-fault summary, five V3 calibration flags). **Disabled until you enable them:** the **Diagnostics** sensor (integration **Options** → enable diagnostics → reload) — it carries raw REST fragments plus V3 `adc_*` / `filter_*` ADC fields as attributes. **SPC API key** setups read `GET https://api.smartpoolconnect.eu/pool/{pool_id}` and always merge `/v3/analoge_data` (TDS salt, scaled ambient temperature, input-error flags, calibration flags). **Portal login** also polls `filter.data` when live-status omits pump speed. Free chlorine is only created when the API reports a true ppm value (high CLM readings are treated as ORP mV, not ppm). Update to **0.1.9+** adds sensor-fault and calibration entities; reload the integration after upgrading.
 
+### pH and ORP target values
+
+Dosing **targets** (setpoints) are not top-level fields in the Smart Pool Connect API. They live inside the `GET https://api.smartpoolconnect.eu/pool/{pool_id}` module tree:
+
+| Goal | JSON path in `rest_pool` | Example |
+|------|--------------------------|---------|
+| **pH target** | `ph.config.target` | `7.2` |
+| **ORP / Rx target (V3)** | `cl.config.clm.target` | `675` (mV) |
+| **ORP (older pools)** | `cl.config.target` or `cl.config.rx_target` | same scale (mV) |
+
+**Live readings** (not targets): `ph.metrics.actual` (pH) and `cl.metrics.clm` (ORP in mV on most V3 pools).
+
+#### In Home Assistant
+
+The integration exposes two sensors on your Norsup device:
+
+| Sensor | Translation (EN) | Translation (NL) | Entity suffix |
+|--------|------------------|------------------|---------------|
+| pH dosing target | **pH target** | **pH-doel** | `…_ph_target` |
+| ORP dosing target | **ORP target** | **ORP-doel** | `…_orp_target` |
+
+Find them under **Settings** → **Devices & services** → your **Norsup** pool → **Entities**. Search for `ph_target` or `orp_target` in the entity list, or filter by name “pH-doel” / “ORP-doel” in Dutch UI.
+
+The **Pool Health** Lovelace card can read those sensors via `ph_target_entity` and `orp_target_entity` (see below). If a target sensor is `unknown` or missing, set `ph_target` / `orp_target` manually in the card YAML.
+
+#### If ORP target stays empty
+
+1. Run `python scripts/debug_auth.py` (see [Test credentials locally](#test-credentials-in-your-local-python-environment)) and open `norsup_api_dump.json` → `normalized` → confirm `orp_target` is a number. If it is `null`, check the raw `rest_pool.cl.config.clm.target` (or `cl.config.target`) in the same file.
+2. Ensure the **ORP target** entity is **enabled** (not disabled under Entities).
+3. After upgrading the integration, **reload** the Norsup config entry so ORP target mapping (`cl.config.clm.target`) is applied.
+
 ### Pool Health Lovelace card
 
 The integration serves a **Pool Health** dashboard card that visualizes chemistry from your **pH** and **ORP** entities (ring gauges and an overall status badge).
