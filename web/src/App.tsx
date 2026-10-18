@@ -166,7 +166,10 @@ type: module
 # Dashboard → Edit → Add card → Manual
 type: custom:norsup-pool-health-card
 ph_entity: sensor.<your_device>_ph
-orp_entity: sensor.<your_device>_orp`}
+orp_entity: sensor.<your_device>_orp
+ph_target_entity: sensor.<your_device>_ph_target
+orp_target_entity: sensor.<your_device>_orp_target
+# or manual: ph_target: 7.2 / orp_target: 700`}
           </pre>
           <p>
             Pick entity IDs from your Norsup device on the <strong>Entities</strong> tab. Full

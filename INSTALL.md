@@ -78,11 +78,19 @@ type: custom:norsup-pool-health-card
 title: Pool health
 ph_entity: sensor.YOUR_PH_ENTITY
 orp_entity: sensor.YOUR_ORP_ENTITY
+# Optional — show dosing targets on the ring (green band + tick):
+ph_target_entity: sensor.YOUR_PH_TARGET_ENTITY
+orp_target_entity: sensor.YOUR_ORP_TARGET_ENTITY
+# If the API does not expose targets, set them manually instead:
+# ph_target: 7.2
+# orp_target: 700
 ```
 
 Replace the entity IDs with the **pH** and **ORP** sensors on your Norsup device (**Settings** → **Devices & services** → your pool → **Entities**). In the card picker you can also search for **Norsup Pool Health** after the resource is loaded.
 
-Optional tuning: `ph_min` / `ph_max` (default 6.8–8.0) and `orp_min` / `orp_max` (default 400–850) adjust the gauge scale.
+**Targets:** enable the **pH target** and **ORP target** sensors on your Norsup device when the cloud API returns them, then point `ph_target_entity` / `orp_target_entity` at those entities. The card draws a green target band and tick on each gauge and scores “Ideal / OK” relative to that target. If targets are missing from the API, omit the entity IDs and set `ph_target` / `orp_target` numbers in YAML instead.
+
+Optional tuning: `ph_min` / `ph_max` (default 6.8–8.0) and `orp_min` / `orp_max` (default 400–850) adjust the gauge scale; `ph_target_tolerance` (default `0.2`) and `orp_target_tolerance` (default `50`) set the width of the green target band in pH / mV.
 
 To **rotate credentials**, open the integration → **Configure** → update your portal password or API key; the new value is validated before it replaces the stored secret.
 

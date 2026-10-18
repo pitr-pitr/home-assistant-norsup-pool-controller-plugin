@@ -67,6 +67,20 @@
   stroke-width: 10;
 }
 
+.targetZone {
+  fill: none;
+  stroke: rgba(52, 211, 153, 0.42);
+  stroke-width: 10;
+  stroke-dasharray: 68 271;
+  stroke-dashoffset: 68;
+}
+
+.targetMarker {
+  fill: #ecfdf5;
+  stroke: rgba(6, 78, 59, 0.85);
+  stroke-width: 1.5;
+}
+
 .progress {
   fill: none;
   stroke: #34d399;
@@ -111,6 +125,12 @@
   font-size: 0.78rem;
   font-weight: 600;
   opacity: 0.92;
+}
+
+.targetHint {
+  margin: 0.2rem 0 0;
+  font-size: 0.68rem;
+  opacity: 0.78;
 }
 
 .footer {

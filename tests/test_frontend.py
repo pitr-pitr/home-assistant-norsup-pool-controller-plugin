@@ -24,6 +24,8 @@ def test_pool_health_card_bundled() -> None:
     text = CARD_PATH.read_text(encoding="utf-8")
     assert "norsup-pool-health-card" in text
     assert "window.customCards" in text
+    assert "ph_target_entity" in text
+    assert "target-zone" in text
 
 
 @pytest.mark.asyncio
