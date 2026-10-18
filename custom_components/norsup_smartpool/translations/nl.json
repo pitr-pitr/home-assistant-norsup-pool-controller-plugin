@@ -30,7 +30,12 @@
       "water_temperature": { "name": "Watertemperatuur" },
       "ph": { "name": "pH" },
       "orp": { "name": "ORP" },
+      "ambient_temperature": { "name": "Buitentemperatuur" },
+      "free_chlorine": { "name": "Vrij chloor" },
       "pump_speed": { "name": "Pompsnelheid" },
+      "pump_current": { "name": "Pompstroom" },
+      "ph_target": { "name": "pH-doel" },
+      "orp_target": { "name": "ORP-doel" },
       "diagnostics": { "name": "Diagnostiek" }
     },
     "binary_sensor": {

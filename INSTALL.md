@@ -61,7 +61,7 @@ Copy the full UUID into the config flow field **Pool ID (UUID)**.
 
 **API key:** choose **SPC API key** and paste your `spc_…` key from the portal. **Pool ID is optional** — the integration lists pools from `GET https://api.smartpoolconnect.eu/pool` and picks the only pool automatically. A 36-character UUID from the portal URL is the **pool ID**, not the API key.
 
-After setup, entities appear under a single device (water temperature, pH, ORP, pump status, cloud connectivity, and related sensors). Optional diagnostics are available in the integration **Options** (requires reload).
+After setup, entities appear under a single device (water temperature, pH, ORP, pump speed, pump running, cloud connectivity, and related sensors). **SPC API key** setups read the full module tree from `GET https://api.smartpoolconnect.eu/pool/{pool_id}` (pH, chlorine/ORP, filter pump speed, targets). **Portal login** also polls `filter.data` for pump speed when live-status omits it. Optional entities (ambient temperature, free chlorine, pump current, targets) are disabled by default until you enable them under the device. Optional diagnostics are available in the integration **Options** (requires reload).
 
 ### Pool Health Lovelace card
 
@@ -85,6 +85,16 @@ Replace the entity IDs with the **pH** and **ORP** sensors on your Norsup device
 Optional tuning: `ph_min` / `ph_max` (default 6.8–8.0) and `orp_min` / `orp_max` (default 400–850) adjust the gauge scale.
 
 To **rotate credentials**, open the integration → **Configure** → update your portal password or API key; the new value is validated before it replaces the stored secret.
+
+#### Pool Health card URL returns 404
+
+A **404** on `/norsup_smartpool/pool-health-card.js` means Home Assistant has **not registered** the static route yet. HA does **not** serve files from `custom_components/` automatically.
+
+1. Confirm the file is at **`custom_components/norsup_smartpool/www/pool-health-card.js`** (inside `www/`, not the integration root).
+2. Confirm **`frontend.py`** exists next to `__init__.py` and that **`__init__.py`** calls `async_register_frontend` from `async_setup` (and on config entry setup).
+3. **Update via HACS** (or copy the full `norsup_smartpool` folder), then perform a **full Home Assistant restart** — reloading only the integration is not enough after installing the card for the first time.
+4. Ensure the **Norsup Smartpool** integration is installed and has loaded at least once (manifest **0.1.4+** for the Pool Health card).
+5. In a browser while logged into HA, open `/norsup_smartpool/pool-health-card.js` — you should see JavaScript, not an HTML 404 page.
 
 ---
 

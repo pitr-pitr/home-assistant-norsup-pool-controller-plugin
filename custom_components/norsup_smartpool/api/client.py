@@ -12,24 +12,28 @@ import aiohttp
 from ..const import (
     API_LIVE_STATUS,
     API_POOL_DATA,
+    API_POOL_FILTER_DATA,
     API_POOL_STATUS,
     API_REST_POOL,
     API_REST_POOLS,
+    API_REST_V3_ANALOG,
     AUTH_TYPE_PORTAL,
     DEFAULT_API_BASE_URL,
     DEFAULT_BASE_URL,
     DEFAULT_OAUTH_BASE_URL,
 )
-from .oauth_session import NorsupPortalLoginError, async_portal_login
 from .models import (
     NorsupPoolData,
+    merge_filter_payload,
     merge_readings,
+    merge_v3_analog_data,
     parse_live_status,
     parse_pool_data_readings,
     parse_pool_status,
     parse_rest_pool,
     parse_rest_pool_list,
 )
+from .oauth_session import NorsupPortalLoginError, async_portal_login
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -144,23 +148,45 @@ class NorsupApiClient:
             return ""
         return text
 
+    async def async_get_filter_data_json(self) -> dict[str, Any]:
+        """Fetch filter module JSON (portal filter.data)."""
+        return await self._async_get_json(
+            API_POOL_FILTER_DATA.format(pool_id=self._pool_id),
+            optional=True,
+        )
+
+    async def async_get_v3_analog_data(self) -> dict[str, Any]:
+        """Fetch V3 analog probe table (REST host only)."""
+        return await self._async_rest_get_json(
+            API_REST_V3_ANALOG.format(pool_id=self._pool_id),
+            optional=True,
+        )
+
     async def async_get_pool_data(self) -> NorsupPoolData:
         """Batch P0 reads and return normalized pool data."""
         if self._rest_api:
             payload = await self._async_rest_get_json(
                 API_REST_POOL.format(pool_id=self._pool_id)
             )
-            return parse_rest_pool(self._pool_id, payload)
+            data = parse_rest_pool(self._pool_id, payload)
+            if data.orp_mv is None or data.ph is None or data.water_temperature_c is None:
+                analog = await self.async_get_v3_analog_data()
+                data = merge_v3_analog_data(data, analog)
+            return data
 
         live_task = asyncio.create_task(self.async_get_live_status())
         status_task = asyncio.create_task(self.async_get_pool_status())
         pool_data_task = asyncio.create_task(self.async_get_pool_data_text())
+        filter_task = asyncio.create_task(self.async_get_filter_data_json())
 
         live_payload = await live_task
-        status_payload, pool_data_text = await asyncio.gather(status_task, pool_data_task)
+        status_payload, pool_data_text, filter_payload = await asyncio.gather(
+            status_task, pool_data_task, filter_task
+        )
 
         data = parse_live_status(self._pool_id, live_payload)
         data = parse_pool_status(data, status_payload)
+        data = merge_filter_payload(data, filter_payload)
         ph, rx = parse_pool_data_readings(pool_data_text, self._pool_id)
         return merge_readings(data, ph, rx)
 
@@ -196,16 +222,19 @@ class NorsupApiClient:
         path: str,
         *,
         auth_probe: bool = False,
+        optional: bool = False,
     ) -> dict[str, Any]:
         if not self._api_key:
             raise NorsupAuthError("invalid_credentials")
         url = _url(self._api_base_url, path)
         headers = self._auth_headers or _rest_api_key_headers(self._api_key)
         try:
-            status, text = await self._request_once(url, headers, optional=False)
+            status, text = await self._request_once(url, headers, optional=optional)
         except aiohttp.ClientError as err:
             raise NorsupConnectionError(str(err)) from err
 
+        if optional and status == 404:
+            return {}
         if status in (401, 403):
             if auth_probe and self._auth_headers is None:
                 raise NorsupAuthError("invalid_credentials")
@@ -213,6 +242,8 @@ class NorsupApiClient:
         if status >= 500:
             raise NorsupTransientError(f"server_error_{status}")
         if status >= 400:
+            if optional:
+                return {}
             raise NorsupAuthError(f"http_{status}")
 
         self._auth_headers = headers

@@ -7,7 +7,6 @@ import logging
 import re
 import secrets
 from dataclasses import dataclass
-from typing import Any
 from urllib.parse import urljoin
 
 import aiohttp
@@ -100,7 +99,7 @@ async def _follow_auth_redirect(
     session: aiohttp.ClientSession, oauth_base_url: str, redirect_to: str
 ) -> None:
     current_url = redirect_to
-    for step in range(10):
+    for _step in range(10):
         async with session.get(current_url, allow_redirects=False) as resp:
             body = await resp.text()
             next_url = (

@@ -55,7 +55,12 @@
       "water_temperature": { "name": "Water temperature" },
       "ph": { "name": "pH" },
       "orp": { "name": "ORP" },
+      "ambient_temperature": { "name": "Ambient temperature" },
+      "free_chlorine": { "name": "Free chlorine" },
       "pump_speed": { "name": "Pump speed" },
+      "pump_current": { "name": "Pump current" },
+      "ph_target": { "name": "pH target" },
+      "orp_target": { "name": "ORP target" },
       "diagnostics": { "name": "Diagnostics" }
     },
     "binary_sensor": {

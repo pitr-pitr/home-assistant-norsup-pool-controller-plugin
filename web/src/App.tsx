@@ -176,6 +176,12 @@ orp_entity: sensor.<your_device>_orp`}
             </a>
             .
           </p>
+          <p>
+            If that resource URL returns <strong>404</strong>, the card script alone is not enough:
+            install the full integration (including <code>frontend.py</code> and{' '}
+            <code>www/pool-health-card.js</code>), update via HACS if needed, then do a{' '}
+            <strong>full Home Assistant restart</strong>. See INSTALL.md for the checklist.
+          </p>
         </section>
 
         <section className={styles.cardWide} aria-labelledby="release-title">

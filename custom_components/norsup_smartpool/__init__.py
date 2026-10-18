@@ -21,6 +21,7 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     await async_register_frontend(hass)
     return True
 
+
 PLATFORMS: list[Platform] = [
     Platform.BINARY_SENSOR,
     Platform.SENSOR,
@@ -29,6 +30,7 @@ PLATFORMS: list[Platform] = [
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Norsup Smartpool from a config entry."""
+    await async_register_frontend(hass)
     client = build_client(hass, entry)
     coordinator = NorsupDataUpdateCoordinator(hass, entry, client)
 

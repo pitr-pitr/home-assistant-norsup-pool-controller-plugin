@@ -28,10 +28,15 @@ class NorsupSmartpoolEntity(CoordinatorEntity[NorsupDataUpdateCoordinator]):
     def device_info(self) -> DeviceInfo:
         data = self.coordinator.data
         name = "Norsup Smartpool"
-        if data and data.pool_status:
-            portal_name = data.pool_status.get("name") or data.pool_status.get("pool_name")
-            if isinstance(portal_name, str) and portal_name.strip():
-                name = portal_name.strip()
+        if data:
+            if data.pool_name and data.pool_name.strip():
+                name = data.pool_name.strip()
+            elif data.pool_status:
+                portal_name = data.pool_status.get("name") or data.pool_status.get(
+                    "pool_name"
+                )
+                if isinstance(portal_name, str) and portal_name.strip():
+                    name = portal_name.strip()
 
         return DeviceInfo(
             identifiers={(DOMAIN, self.coordinator.pool_id)},

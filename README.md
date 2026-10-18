@@ -81,7 +81,7 @@ config/
 
 ## Features
 
-- Sensors: water temperature, pH, ORP, pump speed (when returned by the API).
+- Sensors: water temperature, pH, ORP, pump speed/current, chemistry targets, optional ambient/free-chlorine (when the API returns them). API-key setups use `GET /pool/{id}` per the Smart Pool Connect REST spec; V3 pools also backfill from `/v3/analoge_data` when needed.
 - **Pool Health** Lovelace card: combined pH + ORP dashboard widget (see [INSTALL.md — Pool Health card](INSTALL.md#pool-health-lovelace-card)).
 - Binary sensors: pump running, cloud online.
 - Config and options flows with API key validation against live-status.

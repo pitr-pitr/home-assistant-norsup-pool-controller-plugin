@@ -1,0 +1,21 @@
+{
+  "pid": "11111111-2222-3333-4444-555555555555",
+  "name": "Rx metric pool",
+  "status": "online",
+  "ph": {
+    "metrics": { "actual": 7.4 },
+    "config": { "target": 7.2 }
+  },
+  "cl": {
+    "metrics": { "rx": 712, "clm": 1.2 },
+    "config": { "target": 700 },
+    "status": { "status": 1 }
+  },
+  "temperature": {
+    "metrics": { "water_temp": 26.0, "ambient_temp": 18.5 }
+  },
+  "filter": {
+    "metrics": { "pump_speed": 2, "pump_current": 1.35 },
+    "status": { "pump_status": 10 }
+  }
+}
