@@ -175,6 +175,8 @@ If the script fails with an SSL or certificate error (common on macOS with the p
 
 You can pass flags instead of environment variables: `python scripts/debug_auth.py --pool-id … --api-key …`.
 
+After a **successful** auth check, the script (by default) calls every Smart Pool Connect endpoint the Home Assistant integration uses, prints the full JSON to the terminal, and writes the same payload to **`norsup_api_dump.json`** in the current directory. Use `--output /path/to/file.json` to choose another path. The file includes raw REST/portal responses plus a `normalized` block (the same fields the integration maps to entities). Redact the file before sharing — it can contain pool names and live readings. Use **`--auth-only`** for a quick credential check without the extra API round-trips or JSON file.
+
 ### Cloud outage or “cannot connect”
 
 Symptoms: *Could not reach Smart Pool Connect*, `binary_sensor` cloud offline, or `UpdateFailed` in logs.

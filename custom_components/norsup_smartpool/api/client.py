@@ -5,6 +5,8 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+from dataclasses import asdict
+from datetime import UTC, datetime
 from typing import Any
 
 import aiohttp
@@ -189,6 +191,76 @@ class NorsupApiClient:
         data = merge_filter_payload(data, filter_payload)
         ph, rx = parse_pool_data_readings(pool_data_text, self._pool_id)
         return merge_readings(data, ph, rx)
+
+    async def async_collect_debug_snapshot(self) -> dict[str, Any]:
+        """Fetch raw responses from every endpoint the integration uses (debug tooling)."""
+        endpoints: dict[str, Any] = {}
+        fetch_errors: dict[str, str] = {}
+
+        async def capture(name: str, coro: Any) -> None:
+            try:
+                endpoints[name] = await coro
+            except Exception as exc:  # noqa: BLE001 — local debug collector
+                fetch_errors[name] = f"{type(exc).__name__}: {exc}"
+
+        if not self._pool_id:
+            return {
+                "meta": {
+                    "pool_id": "",
+                    "base_url": self._base_url,
+                    "api_base_url": self._api_base_url,
+                    "auth_mode": "rest_api" if self._rest_api else "portal",
+                    "fetched_at": datetime.now(UTC).isoformat(),
+                },
+                "endpoints": {},
+                "fetch_errors": {"pool_id": "missing"},
+                "normalized": None,
+            }
+
+        if self._rest_api:
+            await capture(
+                "rest_pools",
+                self._async_rest_get_json(API_REST_POOLS),
+            )
+            await capture(
+                "rest_pool",
+                self._async_rest_get_json(
+                    API_REST_POOL.format(pool_id=self._pool_id),
+                ),
+            )
+            await capture("rest_v3_analog", self.async_get_v3_analog_data())
+
+        await capture("live_status", self.async_get_live_status())
+        await capture("pool_status", self.async_get_pool_status())
+        try:
+            endpoints["pool_data_text"] = await self.async_get_pool_data_text()
+        except Exception as exc:  # noqa: BLE001
+            fetch_errors["pool_data_text"] = f"{type(exc).__name__}: {exc}"
+        await capture("filter_data", self.async_get_filter_data_json())
+
+        normalized: NorsupPoolData | None = None
+        normalized_error: str | None = None
+        try:
+            normalized = await self.async_get_pool_data()
+        except Exception as exc:  # noqa: BLE001
+            normalized_error = f"{type(exc).__name__}: {exc}"
+
+        snapshot: dict[str, Any] = {
+            "meta": {
+                "pool_id": self._pool_id,
+                "base_url": self._base_url,
+                "api_base_url": self._api_base_url,
+                "auth_mode": "rest_api" if self._rest_api else "portal",
+                "fetched_at": datetime.now(UTC).isoformat(),
+            },
+            "endpoints": endpoints,
+            "normalized": asdict(normalized) if normalized else None,
+        }
+        if fetch_errors:
+            snapshot["fetch_errors"] = fetch_errors
+        if normalized_error:
+            snapshot["normalized_error"] = normalized_error
+        return snapshot
 
     async def _async_get_json(
         self,

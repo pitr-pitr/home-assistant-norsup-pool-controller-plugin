@@ -21,16 +21,24 @@ Examples (from repository root):
 
   # macOS python.org builds may lack CA certs; local debug only:
   python scripts/debug_auth.py --insecure
+
+  # After auth succeeds, fetch every endpoint and save JSON (default: norsup_api_dump.json):
+  python scripts/debug_auth.py --insecure --output /tmp/norsup_dump.json
+
+  # Auth check only (no extra API calls or JSON file):
+  python scripts/debug_auth.py --auth-only
 """
 
 from __future__ import annotations
 
 import argparse
 import asyncio
+import json
 import os
 import re
 import sys
 from pathlib import Path
+from typing import Any
 
 import aiohttp
 
@@ -40,6 +48,7 @@ if str(_COMPONENTS) not in sys.path:
     sys.path.insert(0, str(_COMPONENTS))
 
 from norsup_smartpool.api import (  # noqa: E402
+    NorsupApiClient,
     NorsupAuthError,
     NorsupConnectionError,
     NorsupPortalLoginError,
@@ -47,16 +56,17 @@ from norsup_smartpool.api import (  # noqa: E402
     async_discover_pools,
     async_list_pools_for_api_key,
     async_portal_login,
-    async_validate_api_key,
-    async_validate_portal_credentials,
 )
 from norsup_smartpool.const import (  # noqa: E402
     API_LIVE_STATUS,
     API_REST_POOLS,
+    AUTH_TYPE_PORTAL,
     DEFAULT_API_BASE_URL,
     DEFAULT_BASE_URL,
     DEFAULT_OAUTH_BASE_URL,
 )
+
+DEFAULT_DUMP_FILE = "norsup_api_dump.json"
 
 _UUID_RE = re.compile(
     r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
@@ -129,6 +139,25 @@ def _client_session(insecure: bool) -> aiohttp.ClientSession:
     return aiohttp.ClientSession()
 
 
+def _emit_api_snapshot(snapshot: dict[str, Any], output_path: Path) -> None:
+    """Print and persist the full API debug snapshot."""
+    text = json.dumps(snapshot, indent=2, sort_keys=True, default=str)
+    print()
+    print("Full API snapshot (all endpoint payloads):")
+    print(text)
+    output_path.write_text(f"{text}\n", encoding="utf-8")
+    print()
+    print(f"Wrote API snapshot to {output_path.resolve()}")
+
+
+async def _dump_api_snapshot(
+    client: NorsupApiClient,
+    output_path: Path,
+) -> None:
+    snapshot = await client.async_collect_debug_snapshot()
+    _emit_api_snapshot(snapshot, output_path)
+
+
 def _warn_api_key_shape(api_key: str) -> None:
     if _UUID_RE.match(api_key):
         print(
@@ -148,6 +177,8 @@ async def _run_portal(
     base_url: str,
     *,
     insecure: bool,
+    auth_only: bool,
+    output_path: Path,
 ) -> int:
     print("Norsup Smartpool — portal login check")
     print(f"  base_url: {base_url}")
@@ -185,15 +216,18 @@ async def _run_portal(
                 print("  pass --pool-id to choose one pool for live-status validation.")
                 return 0
 
+        client = NorsupApiClient(
+            session,
+            pool_id,
+            api_key=None,
+            base_url=base_url,
+            username=email,
+            password=password,
+            oauth_base_url=DEFAULT_OAUTH_BASE_URL,
+            auth_type=AUTH_TYPE_PORTAL,
+        )
         try:
-            payload = await async_validate_portal_credentials(
-                session,
-                pool_id,
-                email,
-                password,
-                base_url,
-                DEFAULT_OAUTH_BASE_URL,
-            )
+            payload = await client.async_validate_api_key()
         except NorsupAuthError as exc:
             print("FAIL: live-status rejected after portal login.")
             print(f"  detail: {exc}")
@@ -203,9 +237,11 @@ async def _run_portal(
             print(f"  detail: {exc}")
             return 2
 
-    print("OK: portal session + live-status succeeded.")
-    if isinstance(payload, dict) and payload:
-        print("  response keys:", ", ".join(sorted(payload.keys())))
+        print("OK: portal session + live-status succeeded.")
+        if isinstance(payload, dict) and payload:
+            print("  response keys:", ", ".join(sorted(payload.keys())))
+        if not auth_only:
+            await _dump_api_snapshot(client, output_path)
     return 0
 
 
@@ -217,6 +253,8 @@ async def _run(
     *,
     verbose: bool,
     insecure: bool,
+    auth_only: bool,
+    output_path: Path,
 ) -> int:
     print("Norsup Smartpool — local API key check (REST)")
     print(f"  api_base_url: {api_base_url}")
@@ -264,14 +302,15 @@ async def _run(
                 print("  pass --pool-id to validate a specific pool.")
                 return 0
 
+        client = NorsupApiClient(
+            session,
+            pool_id,
+            api_key,
+            base_url,
+            api_base_url=api_base_url,
+        )
         try:
-            payload = await async_validate_api_key(
-                session,
-                pool_id,
-                api_key,
-                base_url,
-                api_base_url=api_base_url,
-            )
+            payload = await client.async_validate_api_key()
         except NorsupAuthError as exc:
             print("FAIL: authentication rejected (Home Assistant would show invalid_auth).")
             print(f"  detail: {exc}")
@@ -289,9 +328,11 @@ async def _run(
             print(f"  detail: {exc}")
             return 2
 
-    print("OK: SPC API key accepted (REST /pool).")
-    if isinstance(payload, dict) and payload:
-        print("  response keys:", ", ".join(sorted(payload.keys())))
+        print("OK: SPC API key accepted (REST /pool).")
+        if isinstance(payload, dict) and payload:
+            print("  response keys:", ", ".join(sorted(payload.keys())))
+        if not auth_only:
+            await _dump_api_snapshot(client, output_path)
     return 0
 
 
@@ -345,7 +386,23 @@ def main(argv: list[str] | None = None) -> int:
         default=os.environ.get("NORSUP_PASSWORD", "").strip(),
         help="Portal password (or set NORSUP_PASSWORD)",
     )
+    parser.add_argument(
+        "--auth-only",
+        action="store_true",
+        help="Validate credentials only; skip full API dump and JSON file",
+    )
+    parser.add_argument(
+        "--output",
+        "-o",
+        default=DEFAULT_DUMP_FILE,
+        metavar="FILE",
+        help=(
+            f"Write full API snapshot JSON here after success "
+            f"(default: {DEFAULT_DUMP_FILE})"
+        ),
+    )
     args = parser.parse_args(argv)
+    output_path = Path(args.output).expanduser()
 
     if args.portal:
         if not args.email or not args.password:
@@ -359,6 +416,8 @@ def main(argv: list[str] | None = None) -> int:
                 args.password,
                 args.base_url,
                 insecure=args.insecure,
+                auth_only=args.auth_only,
+                output_path=output_path,
             )
         )
 
@@ -373,6 +432,8 @@ def main(argv: list[str] | None = None) -> int:
             args.api_base_url,
             verbose=args.verbose,
             insecure=args.insecure,
+            auth_only=args.auth_only,
+            output_path=output_path,
         )
     )
 
