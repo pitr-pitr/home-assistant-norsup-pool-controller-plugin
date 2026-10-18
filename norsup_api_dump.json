@@ -1,0 +1,445 @@
+{
+  "endpoints": {
+    "filter_data": {},
+    "pool_data_text": "<!DOCTYPE html><html lang=\"en\" class=\"dark dark:bg-zinc-800 bg-zinc-50\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"preload\" as=\"image\" href=\"/logo.svg\"/><title>Smart Pool Connect</title><link rel=\"icon\" type=\"image/svg+xml\" href=\"/favicon.svg\"/><link rel=\"preconnect\" href=\"https://fonts.googleapis.com\"/><link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin=\"anonymous\"/><link rel=\"modulepreload\" href=\"/assets/entry.client-CBc3_x_j.js\"/><link rel=\"modulepreload\" href=\"/assets/chunk-OIYGIGL5-DtP78GGk.js\"/><link rel=\"modulepreload\" href=\"/assets/device-BhXJq1v_.js\"/><link rel=\"modulepreload\" href=\"/assets/root-C9G-vKfE.js\"/><link rel=\"modulepreload\" href=\"/assets/login-CocIf9xt.js\"/><link rel=\"modulepreload\" href=\"/assets/heading-CddbWLz4.js\"/><link rel=\"modulepreload\" href=\"/assets/button-vSzRp30n.js\"/><link rel=\"modulepreload\" href=\"/assets/paragraph-COYHyMDb.js\"/><link rel=\"stylesheet\" href=\"/assets/root-D2ha3-uQ.css\"/><link rel=\"stylesheet\" href=\"https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&amp;display=swap\"/></head><body class=\" text-zinc-950 min-h-screen dark:text-white\"><div class=\"flex-1 h-dvh w-screen items-center max-w-sm mx-auto justify-center flex flex-col\"><img class=\"mx-auto h-10 w-auto\" src=\"/logo.svg\"/><div class=\"w-full\"><h1 class=\"text-black dark:text-white select-none tracking-tight font-bold text-2xl/8 sm:text-xl-8 mt-10 text-center\">Sign In</h1><form class=\"mt-10 gap-8 flex flex-col\" data-discover=\"true\" action=\"/oauth/login?state=nLhb39YqEm4IBWdcxqTg1CTnNhxNKK3JsKd7t3HwGc0&amp;client_id=019d97d6-2f32-7deb-958b-1f76233b38ea&amp;access_type=offline&amp;response_type=code&amp;redirect_uri=https://www.smartpoolconnect.eu/auth&amp;code_challenge_method=S256&amp;code_challenge=tIeWmoCQZt97FVp8XkPYgNrrrkpj1G0kCOU4hnGpSiY&amp;scope=email+profile\" method=\"post\"><div class=\"grid gap-2\"><label for=\"email\" class=\"text-sm font-medium\">Email</label><input id=\"email\" type=\"email\" required=\"\" autoComplete=\"username\" inputMode=\"email\" autoCapitalize=\"none\" autoCorrect=\"off\" spellCheck=\"false\" placeholder=\"Enter your email\" class=\"flex h-10 w-full rounded-md border border-zinc-700 bg-transparent px-3 py-2 text-base placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-teal-500\" name=\"email\"/></div><div class=\"grid gap-2\"><div class=\"flex justify-between\"><label for=\"password\" class=\"text-sm font-medium\">Password</label><a class=\"text-sm/6 bloc font-semibold text-accent-600 hover:text-accent-500 focus-visible:text-accent-500 aria-disabled:pointer-events-none outline-none aria-disabled:opacity-50\" href=\"/oauth/recover\" data-discover=\"true\">Forgot password</a></div><input id=\"password\" type=\"password\" required=\"\" autoComplete=\"current-password\" placeholder=\"Enter your password\" class=\"flex h-10 w-full rounded-md border border-zinc-700 bg-transparent px-3 py-2 text-base placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-teal-500\" name=\"password\"/></div><input type=\"hidden\" name=\"device\"/><button type=\"submit\" class=\"after:absolute relative after:inset-0 after:pointer-events-none after:rounded-md after:ring-inset dark:focus-visible:ring-accent-600 dark:focus-within:ring-accent-600 focus-within:ring-accent-500 select-none inline-flex enabled:cursor-pointer after:bg-transparent px-4 items-center focus-within:ring-0 focus-visible:ring-2 justify-center gap-x-2 rounded-md outline-none text-base/6 font-semibold py-2.5 sm:0 sm:py-1.5 sm:text-sm/6 disabled:opacity-50 bg-accent-600 hover:bg-accent-500 text-white w-full\">Login</button><div class=\"flex items-center gap-4 text-xs uppercase text-zinc-500\"><span class=\"h-px flex-1 bg-zinc-700\"></span><span>or</span><span class=\"h-px flex-1 bg-zinc-700\"></span></div><a class=\"bloc focus-visible:text-accent-500 aria-disabled:pointer-events-none outline-none aria-disabled:opacity-50 flex w-full items-center justify-center rounded-md border border-accent-600 px-4 py-2.5 text-base font-semibold text-accent-500 no-underline hover:bg-accent-600 hover:text-white\" href=\"/oauth/magic?state=nLhb39YqEm4IBWdcxqTg1CTnNhxNKK3JsKd7t3HwGc0&amp;client_id=019d97d6-2f32-7deb-958b-1f76233b38ea&amp;access_type=offline&amp;response_type=code&amp;redirect_uri=https%3A%2F%2Fwww.smartpoolconnect.eu%2Fauth&amp;code_challenge_method=S256&amp;code_challenge=tIeWmoCQZt97FVp8XkPYgNrrrkpj1G0kCOU4hnGpSiY&amp;scope=email+profile\" data-discover=\"true\">Sign in with an email link</a></form><p class=\"text-base/6 sm:text-sm/6 select-none text-zinc-500 dark:text-zinc-400 mt-10 mx-auto w-fit space-x-2\"><span>Not a member?</span><a class=\"text-sm/6 bloc font-semibold text-accent-600 hover:text-accent-500 focus-visible:text-accent-500 aria-disabled:pointer-events-none outline-none aria-disabled:opacity-50\" href=\"/oauth/signup?state=nLhb39YqEm4IBWdcxqTg1CTnNhxNKK3JsKd7t3HwGc0&amp;client_id=019d97d6-2f32-7deb-958b-1f76233b38ea&amp;access_type=offline&amp;response_type=code&amp;redirect_uri=https%3A%2F%2Fwww.smartpoolconnect.eu%2Fauth&amp;code_challenge_method=S256&amp;code_challenge=tIeWmoCQZt97FVp8XkPYgNrrrkpj1G0kCOU4hnGpSiY&amp;scope=email+profile\" data-discover=\"true\">Create account</a></p></div></div><script>((storageKey2, restoreKey) => {\n    if (!window.history.state || !window.history.state.key) {\n      let key = Math.random().toString(32).slice(2);\n      window.history.replaceState({ key }, \"\");\n    }\n    try {\n      let positions = JSON.parse(sessionStorage.getItem(storageKey2) || \"{}\");\n      let storedY = positions[restoreKey || window.history.state.key];\n      if (typeof storedY === \"number\") {\n        window.scrollTo(0, storedY);\n      }\n    } catch (error) {\n      console.error(error);\n      sessionStorage.removeItem(storageKey2);\n    }\n  })(\"react-router-scroll-positions\", null)</script><script>window.__reactRouterContext = {\"basename\":\"/\",\"future\":{\"v8_middleware\":false,\"unstable_optimizeDeps\":false,\"unstable_splitRouteModules\":false,\"unstable_subResourceIntegrity\":false,\"unstable_viteEnvironmentApi\":false},\"routeDiscovery\":{\"mode\":\"lazy\",\"manifestPath\":\"/__manifest\"},\"ssr\":true,\"isSpaMode\":false};window.__reactRouterContext.stream = new ReadableStream({start(controller){window.__reactRouterContext.streamController = controller;}}).pipeThrough(new TextEncoderStream());</script><script type=\"module\" async=\"\">;\nimport * as route0 from \"/assets/root-C9G-vKfE.js\";\nimport * as route1 from \"/assets/login-CocIf9xt.js\";\n  window.__reactRouterManifest = {\n  \"entry\": {\n    \"module\": \"/assets/entry.client-CBc3_x_j.js\",\n    \"imports\": [\n      \"/assets/chunk-OIYGIGL5-DtP78GGk.js\",\n      \"/assets/device-BhXJq1v_.js\"\n    ],\n    \"css\": []\n  },\n  \"routes\": {\n    \"root\": {\n      \"id\": \"root\",\n      \"path\": \"\",\n      \"hasAction\": false,\n      \"hasLoader\": false,\n      \"hasClientAction\": false,\n      \"hasClientLoader\": false,\n      \"hasClientMiddleware\": false,\n      \"hasErrorBoundary\": false,\n      \"module\": \"/assets/root-C9G-vKfE.js\",\n      \"imports\": [\n        \"/assets/chunk-OIYGIGL5-DtP78GGk.js\",\n        \"/assets/device-BhXJq1v_.js\"\n      ],\n      \"css\": [\n        \"/assets/root-D2ha3-uQ.css\"\n      ]\n    },\n    \"routes/login\": {\n      \"id\": \"routes/login\",\n      \"parentId\": \"root\",\n      \"path\": \"oauth/login\",\n      \"hasAction\": true,\n      \"hasLoader\": true,\n      \"hasClientAction\": false,\n      \"hasClientLoader\": false,\n      \"hasClientMiddleware\": false,\n      \"hasErrorBoundary\": false,\n      \"module\": \"/assets/login-CocIf9xt.js\",\n      \"imports\": [\n        \"/assets/chunk-OIYGIGL5-DtP78GGk.js\",\n        \"/assets/device-BhXJq1v_.js\",\n        \"/assets/heading-CddbWLz4.js\",\n        \"/assets/button-vSzRp30n.js\",\n        \"/assets/paragraph-COYHyMDb.js\"\n      ],\n      \"css\": []\n    }\n  },\n  \"url\": \"/assets/manifest-14551e25.js\",\n  \"version\": \"14551e25\"\n};\n  window.__reactRouterRouteModules = {\"root\":route0,\"routes/login\":route1};\n\nimport(\"/assets/entry.client-CBc3_x_j.js\");</script><!--$--><script>window.__reactRouterContext.streamController.enqueue(\"[{\\\"_1\\\":2,\\\"_5\\\":-5,\\\"_6\\\":-5},\\\"loaderData\\\",{\\\"_3\\\":4},\\\"routes/login\\\",\\\"failed to authenticate\\\",\\\"actionData\\\",\\\"errors\\\"]\\n\");</script><!--$--><script>window.__reactRouterContext.streamController.close();</script><!--/$--><!--/$--></body></html>",
+    "rest_pool": {
+      "activity_at": 1792337499722,
+      "api_version": 3,
+      "aux_1": {
+        "config": {
+          "always_on": false,
+          "cover_closed": false,
+          "flow": false,
+          "name": "flow",
+          "schedule": {
+            "days": [],
+            "enabled": false,
+            "start_time": "00:00",
+            "stop_time": "00:00"
+          }
+        },
+        "status": {
+          "status": 1,
+          "timestamp": 1792337501941
+        }
+      },
+      "aux_2": {
+        "config": {
+          "always_on": false,
+          "cover_closed": false,
+          "flow": false,
+          "name": "disinfection_1",
+          "schedule": {
+            "days": [],
+            "enabled": false,
+            "start_time": "00:00",
+            "stop_time": "00:00"
+          }
+        },
+        "status": {
+          "status": 0,
+          "timestamp": 1792337501941
+        }
+      },
+      "aux_3": {
+        "config": {
+          "always_on": false,
+          "cover_closed": false,
+          "flow": false,
+          "name": "disinfection_2",
+          "schedule": {
+            "days": [],
+            "enabled": false,
+            "start_time": "00:00",
+            "stop_time": "00:00"
+          }
+        },
+        "status": {
+          "status": 1,
+          "timestamp": 1792337501941
+        }
+      },
+      "aux_4": {
+        "config": {
+          "always_on": false,
+          "cover_closed": false,
+          "flow": false,
+          "name": "disinfection_2",
+          "schedule": {
+            "days": [],
+            "enabled": false,
+            "start_time": "00:00",
+            "stop_time": "00:00"
+          }
+        },
+        "status": {
+          "status": 1,
+          "timestamp": 1792337501941
+        }
+      },
+      "avatar": null,
+      "avatar_thumb": null,
+      "cl": {
+        "config": {
+          "clm": {
+            "probe": 0.0,
+            "target": 675.0
+          },
+          "dosing_time": 60000,
+          "min_water_temp": 12.0,
+          "overdose_alert": 0.0,
+          "pausing_time": 600000
+        },
+        "metrics": {
+          "clm": 681.5619954084456,
+          "timestamp": 1792337501941
+        },
+        "status": {
+          "calibration": 0,
+          "status": 0,
+          "timestamp": 1792337501941
+        }
+      },
+      "created_at": 1780661933874,
+      "filter": {
+        "config": {
+          "always_active": false,
+          "pump_speed": "high",
+          "schedule_1": {
+            "days": [],
+            "enabled": true,
+            "pump_speed": "medium",
+            "start_time": "08:00",
+            "stop_time": "20:00"
+          },
+          "schedule_2": {
+            "days": [],
+            "enabled": false,
+            "pump_speed": "medium",
+            "start_time": "00:00",
+            "stop_time": "00:00"
+          },
+          "schedule_3": {
+            "days": [],
+            "enabled": false,
+            "pump_speed": "high",
+            "start_time": "08:00",
+            "stop_time": "20:00"
+          }
+        },
+        "metrics": {
+          "error_code": 0,
+          "pump_current": 0.0,
+          "pump_speed": 0,
+          "timestamp": 1792337501941
+        },
+        "status": {
+          "pump_speed": 0,
+          "pump_status": 2,
+          "status": 4,
+          "timestamp": 1792337501941
+        }
+      },
+      "location": null,
+      "mac_address": "88:A2:9E:85:94:26",
+      "name": "Pieter Jansen",
+      "ph": {
+        "config": {
+          "dosing_time": 30000,
+          "gain": 0.9844906776788745,
+          "hysteresis": 0.1,
+          "min_water_temp": 12.0,
+          "offset": 0.1842305331283007,
+          "overdose_alert": 0.0,
+          "pausing_time": 600000,
+          "probe_offset": 0.0,
+          "target": 7.2,
+          "type": "neg"
+        },
+        "metrics": {
+          "actual": 6.5048344659040165,
+          "timestamp": 1792337501941
+        },
+        "status": {
+          "calibration": 0,
+          "status": 0,
+          "timestamp": 1792337501941
+        }
+      },
+      "pid": "833f31e4-54c7-4101-8ba3-0763b42cfd12",
+      "status": "online"
+    },
+    "rest_pools": {
+      "items": [
+        {
+          "activity_at": 1792337499722,
+          "api_version": 3,
+          "avatar": null,
+          "avatar_thumb": null,
+          "created_at": 1780661933874,
+          "location": null,
+          "mac_address": "88:A2:9E:85:94:26",
+          "name": "Pieter Jansen",
+          "pid": "833f31e4-54c7-4101-8ba3-0763b42cfd12",
+          "status": "online"
+        }
+      ],
+      "page": 0,
+      "page_size": 25,
+      "total": 1
+    },
+    "rest_v3_analog": {
+      "data": {
+        "a_input_error": 0,
+        "adc_ain": 0,
+        "adc_at": 4015,
+        "adc_ntc": 1939,
+        "adc_ph": 8736877,
+        "adc_rx": 14179680,
+        "adc_tds": 1495,
+        "adc_tds_null": 298,
+        "adc_wt": 1390,
+        "ambient_t": 108.74046,
+        "ambient_temp_input_error": 0,
+        "b_tds_null_measurement": false,
+        "calibration_gain": 0,
+        "calibration_offset": 0,
+        "calibration_ph_4": true,
+        "calibration_ph_7": true,
+        "calibration_ph_correct": true,
+        "calibration_rx_475": true,
+        "calibration_rx_correct": true,
+        "filter_ain": 0,
+        "filter_at": 4014,
+        "filter_ntc": 1939,
+        "filter_ph1": 8736877,
+        "filter_ph2": 8735578,
+        "filter_rx1": 14180339,
+        "filter_rx2": 14181217,
+        "filter_tds": 1459,
+        "filter_wt": 1390,
+        "ntc_input_error": 0,
+        "ph": 6.5048344659040165,
+        "ph_input_error": 0,
+        "ph_mv": 40,
+        "ph_mv_measure": 1027,
+        "ph_raw": 6.309900964399083,
+        "ph_sensor_status": 0,
+        "ph_sensor_status_gain": 0,
+        "ph_sensor_status_offset": 0,
+        "reserved": 0,
+        "rx": 681.5619954084456,
+        "rx_input_error": 0,
+        "rx_mv_measure": 1668,
+        "rx_raw": 681.5619954084456,
+        "rx_sensor_status": 0,
+        "tds_input_error": 0,
+        "tds_pollution": 0,
+        "tds_pollution_input_error": 0,
+        "tds_salt": 3350.646,
+        "tds_salt_input_error": 0,
+        "water_t": 25.226418,
+        "water_temp_input_error": 0
+      }
+    }
+  },
+  "fetch_errors": {
+    "live_status": "NorsupAuthError: invalid_credentials",
+    "pool_status": "NorsupAuthError: invalid_credentials"
+  },
+  "meta": {
+    "api_base_url": "https://api.smartpoolconnect.eu",
+    "auth_mode": "rest_api",
+    "base_url": "https://www.smartpoolconnect.eu",
+    "fetched_at": "2026-10-18T15:31:42.515076+00:00",
+    "pool_id": "833f31e4-54c7-4101-8ba3-0763b42cfd12"
+  },
+  "normalized": {
+    "ambient_temperature_c": 108.74046,
+    "cl_dosing_status": 0,
+    "filter_pump_status": 2,
+    "free_chlorine_ppm": 681.545523068815,
+    "live_status": {
+      "activity_at": 1792337499722,
+      "api_version": 3,
+      "aux_1": {
+        "config": {
+          "always_on": false,
+          "cover_closed": false,
+          "flow": false,
+          "name": "flow",
+          "schedule": {
+            "days": [],
+            "enabled": false,
+            "start_time": "00:00",
+            "stop_time": "00:00"
+          }
+        },
+        "status": {
+          "status": 1,
+          "timestamp": 1792337502423
+        }
+      },
+      "aux_2": {
+        "config": {
+          "always_on": false,
+          "cover_closed": false,
+          "flow": false,
+          "name": "disinfection_1",
+          "schedule": {
+            "days": [],
+            "enabled": false,
+            "start_time": "00:00",
+            "stop_time": "00:00"
+          }
+        },
+        "status": {
+          "status": 0,
+          "timestamp": 1792337502423
+        }
+      },
+      "aux_3": {
+        "config": {
+          "always_on": false,
+          "cover_closed": false,
+          "flow": false,
+          "name": "disinfection_2",
+          "schedule": {
+            "days": [],
+            "enabled": false,
+            "start_time": "00:00",
+            "stop_time": "00:00"
+          }
+        },
+        "status": {
+          "status": 1,
+          "timestamp": 1792337502423
+        }
+      },
+      "aux_4": {
+        "config": {
+          "always_on": false,
+          "cover_closed": false,
+          "flow": false,
+          "name": "disinfection_2",
+          "schedule": {
+            "days": [],
+            "enabled": false,
+            "start_time": "00:00",
+            "stop_time": "00:00"
+          }
+        },
+        "status": {
+          "status": 1,
+          "timestamp": 1792337502423
+        }
+      },
+      "avatar": null,
+      "avatar_thumb": null,
+      "cl": {
+        "config": {
+          "clm": {
+            "probe": 0.0,
+            "target": 675.0
+          },
+          "dosing_time": 60000,
+          "min_water_temp": 12.0,
+          "overdose_alert": 0.0,
+          "pausing_time": 600000
+        },
+        "metrics": {
+          "clm": 681.545523068815,
+          "timestamp": 1792337502423
+        },
+        "status": {
+          "calibration": 0,
+          "status": 0,
+          "timestamp": 1792337502423
+        }
+      },
+      "created_at": 1780661933874,
+      "filter": {
+        "config": {
+          "always_active": false,
+          "pump_speed": "high",
+          "schedule_1": {
+            "days": [],
+            "enabled": true,
+            "pump_speed": "medium",
+            "start_time": "08:00",
+            "stop_time": "20:00"
+          },
+          "schedule_2": {
+            "days": [],
+            "enabled": false,
+            "pump_speed": "medium",
+            "start_time": "00:00",
+            "stop_time": "00:00"
+          },
+          "schedule_3": {
+            "days": [],
+            "enabled": false,
+            "pump_speed": "high",
+            "start_time": "08:00",
+            "stop_time": "20:00"
+          }
+        },
+        "metrics": {
+          "error_code": 0,
+          "pump_current": 0.0,
+          "pump_speed": 0,
+          "timestamp": 1792337502423
+        },
+        "status": {
+          "pump_speed": 0,
+          "pump_status": 2,
+          "status": 4,
+          "timestamp": 1792337502423
+        }
+      },
+      "location": null,
+      "mac_address": "88:A2:9E:85:94:26",
+      "name": "Pieter Jansen",
+      "ph": {
+        "config": {
+          "dosing_time": 30000,
+          "gain": 0.9844906776788745,
+          "hysteresis": 0.1,
+          "min_water_temp": 12.0,
+          "offset": 0.1842305331283007,
+          "overdose_alert": 0.0,
+          "pausing_time": 600000,
+          "probe_offset": 0.0,
+          "target": 7.2,
+          "type": "neg"
+        },
+        "metrics": {
+          "actual": 6.504434900656865,
+          "timestamp": 1792337502423
+        },
+        "status": {
+          "calibration": 0,
+          "status": 0,
+          "timestamp": 1792337502423
+        }
+      },
+      "pid": "833f31e4-54c7-4101-8ba3-0763b42cfd12",
+      "status": "online"
+    },
+    "online": true,
+    "orp_mv": 681.545523068815,
+    "orp_target": null,
+    "ph": 6.504434900656865,
+    "ph_dosing_status": 0,
+    "ph_target": 7.2,
+    "pool_id": "833f31e4-54c7-4101-8ba3-0763b42cfd12",
+    "pool_name": "Pieter Jansen",
+    "pool_status": {
+      "name": "Pieter Jansen"
+    },
+    "pump_current_a": 0.0,
+    "pump_running": true,
+    "pump_speed": "off",
+    "water_temperature_c": 25.226418
+  }
+}

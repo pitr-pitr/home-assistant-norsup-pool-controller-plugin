@@ -54,6 +54,16 @@
   color: var(--foam);
 }
 
+.scanResult {
+  margin: 0.85rem 0 0;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.scanResult[data-ok='yes'] {
+  color: var(--foam);
+}
+
 .grid {
   display: grid;
   gap: 1.25rem;

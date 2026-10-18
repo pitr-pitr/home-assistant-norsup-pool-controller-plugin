@@ -7,6 +7,8 @@ import styles from './App.module.css'
 const HACS_REPO =
   'https://github.com/pitr-pitr/home-assistant-norsup-pool-controller-plugin'
 
+const DEFAULT_API_TARGET = 'https://api.smartpoolconnect.eu'
+
 type IntegrationInfo = {
   domain: string
   name: string
@@ -19,6 +21,15 @@ export default function App() {
   const [info, setInfo] = useState<IntegrationInfo | null>(null)
   const [copied, setCopied] = useState(false)
   const [apiStatus, setApiStatus] = useState<'loading' | 'ok' | 'offline'>('loading')
+  const [scanTarget, setScanTarget] = useState(DEFAULT_API_TARGET)
+  const [scanState, setScanState] = useState<'idle' | 'scanning' | 'done'>('idle')
+  const [scanResult, setScanResult] = useState<{
+    ok: boolean
+    target?: string
+    http_status?: number
+    error?: string
+    hint?: string
+  } | null>(null)
 
   useEffect(() => {
     fetch('/v1/integration')
@@ -37,6 +48,24 @@ export default function App() {
     await navigator.clipboard.writeText(HACS_REPO)
     setCopied(true)
     window.setTimeout(() => setCopied(false), 2000)
+  }
+
+  async function runApiScan() {
+    setScanState('scanning')
+    setScanResult(null)
+    try {
+      const response = await fetch('/v1/scan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ target: scanTarget.trim() || DEFAULT_API_TARGET }),
+      })
+      const payload = await response.json()
+      setScanResult(payload)
+    } catch {
+      setScanResult({ ok: false, error: 'request_failed' })
+    } finally {
+      setScanState('done')
+    }
   }
 
   return (
@@ -87,6 +116,43 @@ export default function App() {
               Settings → Devices &amp; services → Add integration → <strong>Norsup Smartpool</strong>.
             </li>
           </ol>
+        </section>
+
+        <section className={styles.card} aria-labelledby="scan-title">
+          <h2 id="scan-title">API host scan</h2>
+          <p>
+            Before adding the integration, confirm Home Assistant can reach the Smart Pool Connect REST
+            API (default cloud host below). A <strong>401</strong> response without an API key is
+            expected — it means the host is online.
+          </p>
+          <label className={styles.fieldLabel} htmlFor="api-target">API base URL or host</label>
+          <div className={styles.copyRow}>
+            <input
+              id="api-target"
+              className={styles.input}
+              value={scanTarget}
+              onChange={e => setScanTarget(e.target.value)}
+              placeholder={DEFAULT_API_TARGET}
+              autoComplete="off"
+              spellCheck={false}
+            />
+            <button
+              id="scan-button"
+              type="button"
+              className={styles.primaryBtn}
+              onClick={() => void runApiScan()}
+              disabled={scanState === 'scanning'}
+            >
+              {scanState === 'scanning' ? 'scanning…' : 'scan API host'}
+            </button>
+          </div>
+          {scanResult ? (
+            <p className={styles.scanResult} data-ok={scanResult.ok ? 'yes' : 'no'}>
+              {scanResult.ok
+                ? `Reachable (${scanResult.target ?? scanTarget}, HTTP ${scanResult.http_status ?? '?'})`
+                : `Not reachable${scanResult.error ? `: ${scanResult.error}` : ''}`}
+            </p>
+          ) : null}
         </section>
 
         <section className={styles.card} aria-labelledby="key-title">

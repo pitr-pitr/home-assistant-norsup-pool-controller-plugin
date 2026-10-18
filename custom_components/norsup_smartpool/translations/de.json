@@ -32,10 +32,15 @@
       "orp": { "name": "ORP" },
       "ambient_temperature": { "name": "Außentemperatur" },
       "free_chlorine": { "name": "Freies Chlor" },
+      "tds_salt": { "name": "TDS-Salz" },
       "pump_speed": { "name": "Pumpendrehzahl" },
       "pump_current": { "name": "Pumpenstrom" },
       "ph_target": { "name": "pH-Sollwert" },
       "orp_target": { "name": "ORP-Sollwert" },
+      "ph_dosing_status": { "name": "pH-Dosierstatus" },
+      "cl_dosing_status": { "name": "Chlordosierstatus" },
+      "filter_error": { "name": "Filterfehlercode" },
+      "filter_status": { "name": "Filterstatuscode" },
       "diagnostics": { "name": "Diagnose" }
     },
     "binary_sensor": {

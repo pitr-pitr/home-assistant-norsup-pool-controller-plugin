@@ -143,6 +143,65 @@ def test_parse_rest_pool_rx_metric_field() -> None:
     assert data.orp_target == 700.0
 
 
+def test_parse_rest_pool_clm_target_and_pump_fallback() -> None:
+    """V3 pools expose ORP target under cl.config.clm and hide speed in config."""
+    payload = {
+        "pid": POOL_ID,
+        "status": "online",
+        "cl": {
+            "config": {"clm": {"target": 675.0}},
+            "metrics": {"clm": 681.5},
+        },
+        "filter": {
+            "config": {
+                "pump_speed": "high",
+                "schedule_1": {
+                    "enabled": True,
+                    "pump_speed": "medium",
+                    "start_time": "08:00",
+                    "stop_time": "20:00",
+                },
+            },
+            "metrics": {"pump_speed": 0, "error_code": 0},
+            "status": {"pump_speed": 0, "pump_status": 2, "status": 4},
+        },
+        "aux_1": {
+            "config": {
+                "name": "flow",
+                "always_on": False,
+                "schedule": {"enabled": False, "start_time": "00:00", "stop_time": "00:00"},
+            },
+            "status": {"status": 1},
+        },
+    }
+    data = parse_rest_pool(POOL_ID, payload)
+    assert data.orp_mv == 681.5
+    assert data.orp_target == 675.0
+    assert data.free_chlorine_ppm is None
+    assert data.pump_speed == "high"
+    assert data.pump_running is True
+    assert data.filter_status_code == 4
+    assert len(data.aux_channels) == 1
+    assert data.aux_channels[0].name == "flow"
+    assert data.aux_channels[0].active is True
+
+
+def test_merge_v3_analog_ambient_and_salt() -> None:
+    data = parse_live_status(POOL_ID, {"online": True})
+    data = merge_v3_analog_data(
+        data,
+        {
+            "data": {
+                "ambient_t": 108.74,
+                "ambient_temp_input_error": 0,
+                "tds_salt": 3350.6,
+            }
+        },
+    )
+    assert data.ambient_temperature_c == pytest.approx(10.874)
+    assert data.tds_salt_ppm == pytest.approx(3350.6)
+
+
 def test_format_pump_speed_codes() -> None:
     assert format_pump_speed(2) == "medium"
     assert format_pump_speed(-1) == "disabled"
@@ -231,7 +290,7 @@ async def test_async_get_pool_data_portal_merges_endpoints() -> None:
     assert data.water_temperature_c == 24.5
     assert data.ph == 7.2
     assert data.orp_mv == 650.0
-    assert data.pump_speed == "medium"
+    assert data.pump_speed == "high"
     assert data.pump_current_a == 1.1
     assert data.pump_running is True
 

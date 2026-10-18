@@ -38,10 +38,15 @@ async def async_setup_entry(
         NorsupPhSensor(coordinator),
         NorsupOrpSensor(coordinator),
         NorsupFreeChlorineSensor(coordinator),
+        NorsupTdsSaltSensor(coordinator),
         NorsupPumpSpeedSensor(coordinator),
         NorsupPumpCurrentSensor(coordinator),
         NorsupPhTargetSensor(coordinator),
         NorsupOrpTargetSensor(coordinator),
+        NorsupPhDosingStatusSensor(coordinator),
+        NorsupClDosingStatusSensor(coordinator),
+        NorsupFilterErrorSensor(coordinator),
+        NorsupFilterStatusSensor(coordinator),
     ]
 
     if entry.options.get(CONF_ENABLE_DIAGNOSTICS):
@@ -139,6 +144,24 @@ class NorsupFreeChlorineSensor(NorsupSmartpoolEntity, SensorEntity):
         return self.coordinator.data.free_chlorine_ppm
 
 
+class NorsupTdsSaltSensor(NorsupSmartpoolEntity, SensorEntity):
+    """TDS salt estimate from V3 analog data when available."""
+
+    _attr_translation_key = "tds_salt"
+    _attr_native_unit_of_measurement = CONCENTRATION_PARTS_PER_MILLION
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_entity_registry_enabled_default = False
+
+    def __init__(self, coordinator: NorsupDataUpdateCoordinator) -> None:
+        super().__init__(coordinator, "tds_salt")
+
+    @property
+    def native_value(self) -> float | None:
+        if self.coordinator.data is None:
+            return None
+        return self.coordinator.data.tds_salt_ppm
+
+
 class NorsupPumpSpeedSensor(NorsupSmartpoolEntity, SensorEntity):
     """Reported filter pump speed (read-only)."""
 
@@ -158,10 +181,20 @@ class NorsupPumpSpeedSensor(NorsupSmartpoolEntity, SensorEntity):
     def extra_state_attributes(self) -> dict[str, object]:
         if self.coordinator.data is None:
             return {}
-        status = self.coordinator.data.filter_pump_status
-        if status is None:
-            return {}
-        return {"filter_pump_status_code": status}
+        data = self.coordinator.data
+        attrs: dict[str, object] = {}
+        if data.filter_pump_status is not None:
+            attrs["filter_pump_status_code"] = data.filter_pump_status
+        if data.filter_status_code is not None:
+            attrs["filter_status_code"] = data.filter_status_code
+        if data.filter_error_code is not None:
+            attrs["filter_error_code"] = data.filter_error_code
+        filter_mod = data.live_status.get("filter")
+        if isinstance(filter_mod, dict):
+            config = filter_mod.get("config")
+            if isinstance(config, dict):
+                attrs["filter_config"] = config
+        return attrs
 
 
 class NorsupPumpCurrentSensor(NorsupSmartpoolEntity, SensorEntity):
@@ -215,6 +248,86 @@ class NorsupOrpTargetSensor(NorsupSmartpoolEntity, SensorEntity):
         if self.coordinator.data is None:
             return None
         return self.coordinator.data.orp_target
+
+
+class NorsupPhDosingStatusSensor(NorsupSmartpoolEntity, SensorEntity):
+    """pH dosing controller status code from the REST pool tree."""
+
+    _attr_translation_key = "ph_dosing_status"
+    _attr_entity_registry_enabled_default = False
+    _attr_icon = "mdi:flask"
+
+    def __init__(self, coordinator: NorsupDataUpdateCoordinator) -> None:
+        super().__init__(coordinator, "ph_dosing_status")
+
+    @property
+    def native_value(self) -> int | None:
+        if self.coordinator.data is None:
+            return None
+        return self.coordinator.data.ph_dosing_status
+
+    @property
+    def extra_state_attributes(self) -> dict[str, object]:
+        if self.coordinator.data is None or self.coordinator.data.ph_calibration is None:
+            return {}
+        return {"calibration": self.coordinator.data.ph_calibration}
+
+
+class NorsupClDosingStatusSensor(NorsupSmartpoolEntity, SensorEntity):
+    """Chlorine / ORP dosing controller status code."""
+
+    _attr_translation_key = "cl_dosing_status"
+    _attr_entity_registry_enabled_default = False
+    _attr_icon = "mdi:water-opacity"
+
+    def __init__(self, coordinator: NorsupDataUpdateCoordinator) -> None:
+        super().__init__(coordinator, "cl_dosing_status")
+
+    @property
+    def native_value(self) -> int | None:
+        if self.coordinator.data is None:
+            return None
+        return self.coordinator.data.cl_dosing_status
+
+    @property
+    def extra_state_attributes(self) -> dict[str, object]:
+        if self.coordinator.data is None or self.coordinator.data.cl_calibration is None:
+            return {}
+        return {"calibration": self.coordinator.data.cl_calibration}
+
+
+class NorsupFilterErrorSensor(NorsupSmartpoolEntity, SensorEntity):
+    """Filter pump error code from filter.metrics."""
+
+    _attr_translation_key = "filter_error"
+    _attr_entity_registry_enabled_default = False
+    _attr_icon = "mdi:alert-circle-outline"
+
+    def __init__(self, coordinator: NorsupDataUpdateCoordinator) -> None:
+        super().__init__(coordinator, "filter_error")
+
+    @property
+    def native_value(self) -> int | None:
+        if self.coordinator.data is None:
+            return None
+        return self.coordinator.data.filter_error_code
+
+
+class NorsupFilterStatusSensor(NorsupSmartpoolEntity, SensorEntity):
+    """Filter module status code from filter.status."""
+
+    _attr_translation_key = "filter_status"
+    _attr_entity_registry_enabled_default = False
+    _attr_icon = "mdi:filter"
+
+    def __init__(self, coordinator: NorsupDataUpdateCoordinator) -> None:
+        super().__init__(coordinator, "filter_status")
+
+    @property
+    def native_value(self) -> int | None:
+        if self.coordinator.data is None:
+            return None
+        return self.coordinator.data.filter_status_code
 
 
 class NorsupDiagnosticsSensor(NorsupSmartpoolEntity, SensorEntity):

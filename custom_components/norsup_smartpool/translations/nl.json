@@ -32,10 +32,15 @@
       "orp": { "name": "ORP" },
       "ambient_temperature": { "name": "Buitentemperatuur" },
       "free_chlorine": { "name": "Vrij chloor" },
+      "tds_salt": { "name": "TDS-zout" },
       "pump_speed": { "name": "Pompsnelheid" },
       "pump_current": { "name": "Pompstroom" },
       "ph_target": { "name": "pH-doel" },
       "orp_target": { "name": "ORP-doel" },
+      "ph_dosing_status": { "name": "pH-doseringstatus" },
+      "cl_dosing_status": { "name": "Chloordoseringstatus" },
+      "filter_error": { "name": "Filterfoutcode" },
+      "filter_status": { "name": "Filterstatuscode" },
       "diagnostics": { "name": "Diagnostiek" }
     },
     "binary_sensor": {
