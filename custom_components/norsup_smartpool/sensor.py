@@ -80,7 +80,6 @@ class NorsupAmbientTemperatureSensor(NorsupSmartpoolEntity, SensorEntity):
     _attr_device_class = SensorDeviceClass.TEMPERATURE
     _attr_native_unit_of_measurement = UnitOfTemperature.CELSIUS
     _attr_state_class = SensorStateClass.MEASUREMENT
-    _attr_entity_registry_enabled_default = False
 
     def __init__(self, coordinator: NorsupDataUpdateCoordinator) -> None:
         super().__init__(coordinator, "ambient_temperature")
@@ -132,7 +131,6 @@ class NorsupFreeChlorineSensor(NorsupSmartpoolEntity, SensorEntity):
     _attr_translation_key = "free_chlorine"
     _attr_native_unit_of_measurement = CONCENTRATION_PARTS_PER_MILLION
     _attr_state_class = SensorStateClass.MEASUREMENT
-    _attr_entity_registry_enabled_default = False
 
     def __init__(self, coordinator: NorsupDataUpdateCoordinator) -> None:
         super().__init__(coordinator, "free_chlorine")
@@ -150,7 +148,6 @@ class NorsupTdsSaltSensor(NorsupSmartpoolEntity, SensorEntity):
     _attr_translation_key = "tds_salt"
     _attr_native_unit_of_measurement = CONCENTRATION_PARTS_PER_MILLION
     _attr_state_class = SensorStateClass.MEASUREMENT
-    _attr_entity_registry_enabled_default = False
 
     def __init__(self, coordinator: NorsupDataUpdateCoordinator) -> None:
         super().__init__(coordinator, "tds_salt")
@@ -204,7 +201,6 @@ class NorsupPumpCurrentSensor(NorsupSmartpoolEntity, SensorEntity):
     _attr_device_class = SensorDeviceClass.CURRENT
     _attr_native_unit_of_measurement = UnitOfElectricCurrent.AMPERE
     _attr_state_class = SensorStateClass.MEASUREMENT
-    _attr_entity_registry_enabled_default = False
 
     def __init__(self, coordinator: NorsupDataUpdateCoordinator) -> None:
         super().__init__(coordinator, "pump_current")
@@ -221,7 +217,6 @@ class NorsupPhTargetSensor(NorsupSmartpoolEntity, SensorEntity):
 
     _attr_translation_key = "ph_target"
     _attr_native_unit_of_measurement = "pH"
-    _attr_entity_registry_enabled_default = False
 
     def __init__(self, coordinator: NorsupDataUpdateCoordinator) -> None:
         super().__init__(coordinator, "ph_target")
@@ -238,7 +233,6 @@ class NorsupOrpTargetSensor(NorsupSmartpoolEntity, SensorEntity):
 
     _attr_translation_key = "orp_target"
     _attr_native_unit_of_measurement = UnitOfElectricPotential.MILLIVOLT
-    _attr_entity_registry_enabled_default = False
 
     def __init__(self, coordinator: NorsupDataUpdateCoordinator) -> None:
         super().__init__(coordinator, "orp_target")
@@ -254,7 +248,6 @@ class NorsupPhDosingStatusSensor(NorsupSmartpoolEntity, SensorEntity):
     """pH dosing controller status code from the REST pool tree."""
 
     _attr_translation_key = "ph_dosing_status"
-    _attr_entity_registry_enabled_default = False
     _attr_icon = "mdi:flask"
 
     def __init__(self, coordinator: NorsupDataUpdateCoordinator) -> None:
@@ -277,7 +270,6 @@ class NorsupClDosingStatusSensor(NorsupSmartpoolEntity, SensorEntity):
     """Chlorine / ORP dosing controller status code."""
 
     _attr_translation_key = "cl_dosing_status"
-    _attr_entity_registry_enabled_default = False
     _attr_icon = "mdi:water-opacity"
 
     def __init__(self, coordinator: NorsupDataUpdateCoordinator) -> None:
@@ -300,7 +292,6 @@ class NorsupFilterErrorSensor(NorsupSmartpoolEntity, SensorEntity):
     """Filter pump error code from filter.metrics."""
 
     _attr_translation_key = "filter_error"
-    _attr_entity_registry_enabled_default = False
     _attr_icon = "mdi:alert-circle-outline"
 
     def __init__(self, coordinator: NorsupDataUpdateCoordinator) -> None:
@@ -317,7 +308,6 @@ class NorsupFilterStatusSensor(NorsupSmartpoolEntity, SensorEntity):
     """Filter module status code from filter.status."""
 
     _attr_translation_key = "filter_status"
-    _attr_entity_registry_enabled_default = False
     _attr_icon = "mdi:filter"
 
     def __init__(self, coordinator: NorsupDataUpdateCoordinator) -> None:

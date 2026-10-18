@@ -9,6 +9,7 @@ from typing import Any
 import aiohttp
 import voluptuous as vol
 from homeassistant import config_entries
+from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.data_entry_flow import FlowResult
 from homeassistant.helpers import aiohttp_client
@@ -193,7 +194,18 @@ async def _async_validate_portal_flow(
 class NorsupSmartpoolConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle a config flow for Norsup Smartpool."""
 
-    VERSION = 1
+    VERSION = 2
+
+    @staticmethod
+    @callback
+    def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> bool:
+        """Re-enable entities that older releases disabled by integration default."""
+        from .migrate import async_enable_integration_disabled_entities
+
+        if config_entry.version < 2:
+            async_enable_integration_disabled_entities(hass, config_entry)
+            hass.config_entries.async_update_entry(config_entry, version=2)
+        return True
 
     def __init__(self) -> None:
         self._portal_input: dict[str, Any] | None = None

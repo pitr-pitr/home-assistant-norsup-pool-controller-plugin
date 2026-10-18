@@ -12,6 +12,7 @@ from homeassistant.helpers.update_coordinator import UpdateFailed
 from .const import DOMAIN
 from .coordinator import NorsupDataUpdateCoordinator, build_client
 from .frontend import async_register_frontend
+from .migrate import async_enable_integration_disabled_entities
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -31,6 +32,7 @@ PLATFORMS: list[Platform] = [
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Norsup Smartpool from a config entry."""
     await async_register_frontend(hass)
+    async_enable_integration_disabled_entities(hass, entry)
     client = build_client(hass, entry)
     coordinator = NorsupDataUpdateCoordinator(hass, entry, client)
 

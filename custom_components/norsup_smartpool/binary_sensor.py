@@ -72,7 +72,6 @@ class NorsupAuxChannelBinarySensor(NorsupSmartpoolEntity, BinarySensorEntity):
     """Auxiliary output (flow, disinfection, …) from the REST pool payload."""
 
     _attr_has_entity_name = False
-    _attr_entity_registry_enabled_default = False
 
     def __init__(self, coordinator: NorsupDataUpdateCoordinator, aux_key: str) -> None:
         super().__init__(coordinator, aux_key)
