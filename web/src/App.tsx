@@ -278,7 +278,8 @@ python scripts/debug_auth.py --verbose`}
           <h2 id="pool-health-title">Pool Health dashboard card</h2>
           <p>
             The integration ships a Lovelace card that combines your <strong>pH</strong> and{' '}
-            <strong>ORP</strong> sensors into one pool-health view (ring gauges + overall status).
+            <strong>ORP</strong> sensors into one pool-health view — ring gauges,{' '}
+            <strong>doel/target</strong> chips, and live-vs-doel comparison bars with delta.
             After restart, add the resource once, then add the card to your dashboard.
           </p>
           <PoolHealthPreview />

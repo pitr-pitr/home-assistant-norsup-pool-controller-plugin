@@ -26,6 +26,8 @@ def test_pool_health_card_bundled() -> None:
     assert "window.customCards" in text
     assert "ph_target_entity" in text
     assert "target-zone" in text
+    assert "doel-strip" in text
+    assert "comparison-bar" in text
 
 
 @pytest.mark.asyncio

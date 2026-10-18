@@ -79,11 +79,12 @@ function gaugeArc(value, min, max) {
   return (clamped - min) / (max - min);
 }
 
-function targetMarker(pct) {
+function targetMarker(pct, onTarget) {
   const theta = pct * 2 * Math.PI - Math.PI / 2;
   const x = 60 + 54 * Math.cos(theta);
   const y = 60 + 54 * Math.sin(theta);
-  return `<circle class="target-marker" cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="4.5" />`;
+  const pulse = onTarget ? ' class="target-marker pulse"' : ' class="target-marker"';
+  return `<circle${pulse} cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="5" />`;
 }
 
 function targetZoneArc(pctMin, pctMax, circumference) {
@@ -106,6 +107,105 @@ function formatPh(value) {
 
 function formatOrp(value) {
   return value === null ? "—" : `${Math.round(value)}`;
+}
+
+function formatDelta(value, target, decimals) {
+  if (value === null || target === null) return null;
+  const delta = value - target;
+  const sign = delta > 0 ? "+" : "";
+  if (decimals === 0) return `${sign}${Math.round(delta)}`;
+  return `${sign}${delta.toFixed(decimals)}`;
+}
+
+function comparisonBar(value, target, tolerance, min, max, unit) {
+  const valuePct = gaugeArc(value, min, max) * 100;
+  const targetPct = target !== null ? gaugeArc(target, min, max) * 100 : null;
+  const zoneMin =
+    target !== null ? gaugeArc(target - tolerance, min, max) * 100 : null;
+  const zoneMax =
+    target !== null ? gaugeArc(target + tolerance, min, max) * 100 : null;
+
+  let zoneHtml = "";
+  if (zoneMin !== null && zoneMax !== null) {
+    const left = Math.min(zoneMin, zoneMax);
+    const width = Math.max(2, Math.abs(zoneMax - zoneMin));
+    zoneHtml = `<div class="bar-zone" style="left:${left}%;width:${width}%"></div>`;
+  }
+
+  const valueDot =
+    value !== null
+      ? `<div class="bar-dot bar-dot--live" style="left:${valuePct}%" title="Now"></div>`
+      : "";
+  const targetTick =
+    targetPct !== null
+      ? `<div class="bar-tick" style="left:${targetPct}%" title="Doel / target"></div>`
+      : "";
+
+  const formatReading = unit === "mV" ? (v) => `${formatOrp(v)} mV` : formatPh;
+
+  const targetLabel =
+    target !== null
+      ? `<span class="bar-label bar-label--target">Doel ${formatReading(target)}</span>`
+      : `<span class="bar-label bar-label--muted">No target set</span>`;
+
+  const nowLabel =
+    value !== null
+      ? `<span class="bar-label bar-label--live">Nu ${formatReading(value)}</span>`
+      : `<span class="bar-label bar-label--muted">—</span>`;
+
+  const delta =
+    unit === "mV"
+      ? formatDelta(value, target, 0)
+      : formatDelta(value, target, 2);
+  const deltaHtml =
+    delta !== null
+      ? `<span class="bar-delta" data-sign="${delta.startsWith("+") ? "pos" : delta.startsWith("-") ? "neg" : "zero"}">Δ ${delta}${unit === "mV" ? " mV" : ""}</span>`
+      : "";
+
+  return `
+    <div class="comparison-bar" data-has-target="${target !== null ? "yes" : "no"}">
+      <div class="bar-track">
+        ${zoneHtml}
+        ${targetTick}
+        ${valueDot}
+      </div>
+      <div class="bar-legend">
+        ${targetLabel}
+        ${nowLabel}
+        ${deltaHtml}
+      </div>
+    </div>
+  `;
+}
+
+function targetChip(name, target, formatTarget, source) {
+  if (target === null) {
+    return `
+      <div class="target-chip target-chip--empty">
+        <span class="chip-kicker">${name} doel</span>
+        <span class="chip-value">—</span>
+        <span class="chip-source">Set ph_target / orp_target in card YAML</span>
+      </div>
+    `;
+  }
+  const sourceLabel =
+    source === "entity" ? "From sensor" : source === "manual" ? "Manual" : "";
+  return `
+    <div class="target-chip">
+      <span class="chip-kicker">${name} · doel</span>
+      <span class="chip-value">${formatTarget(target)}</span>
+      ${sourceLabel ? `<span class="chip-source">${sourceLabel}</span>` : ""}
+    </div>
+  `;
+}
+
+function targetSource(hass, entityId, manual, resolved) {
+  if (resolved === null) return "none";
+  if (entityId && hass?.states[entityId] && parseNumber(hass.states[entityId]) !== null) {
+    return "entity";
+  }
+  if (manual !== undefined && manual !== null && manual !== "") return "manual";
+  return "entity";
 }
 
 class NorsupPoolHealthCard extends HTMLElement {
@@ -179,7 +279,7 @@ class NorsupPoolHealthCard extends HTMLElement {
   }
 
   getCardSize() {
-    return 4;
+    return 5;
   }
 
   _render() {
@@ -198,21 +298,33 @@ class NorsupPoolHealthCard extends HTMLElement {
     const phPct = gaugeArc(phVal, this._config.ph_min, this._config.ph_max);
     const orpPct = gaugeArc(orpVal, this._config.orp_min, this._config.orp_max);
 
-    const ring = (pct, level, label, valueText, unit, target, tolerance, scaleMin, scaleMax, formatTarget) => {
+    const phOnTarget = ph.label === "On target" || ph.label === "Ideal";
+    const orpOnTarget = orp.label === "On target" || orp.label === "Ideal";
+
+    const ring = (pct, level, label, valueText, unit, target, tolerance, scaleMin, scaleMax, formatTarget, onTarget) => {
       const circumference = 2 * Math.PI * 54;
       const offset = circumference * (1 - pct);
       let targetSvg = "";
-      let targetCaption = "";
+      let targetInGauge = "";
       if (target !== null) {
         const zoneMin = gaugeArc(target - tolerance, scaleMin, scaleMax);
         const zoneMax = gaugeArc(target + tolerance, scaleMin, scaleMax);
         const markerPct = gaugeArc(target, scaleMin, scaleMax);
-        targetSvg = `${targetZoneArc(zoneMin, zoneMax, circumference)}${targetMarker(markerPct)}`;
-        targetCaption = `<div class="target-hint">Target ${formatTarget(target)}</div>`;
+        targetSvg = `${targetZoneArc(zoneMin, zoneMax, circumference)}${targetMarker(markerPct, onTarget)}`;
+        targetInGauge = `<span class="gauge-target">doel ${formatTarget(target)}</span>`;
       }
       return `
-        <div class="gauge" data-level="${level}">
+        <div class="gauge" data-level="${level}" data-on-target="${onTarget ? "yes" : "no"}">
           <svg viewBox="0 0 120 120" aria-hidden="true">
+            <defs>
+              <filter id="glow-${unit.replace(/\s/g, "")}">
+                <feGaussianBlur stdDeviation="2" result="blur" />
+                <feMerge>
+                  <feMergeNode in="blur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+            </defs>
             <circle class="track" cx="60" cy="60" r="54" />
             ${targetSvg}
             <circle
@@ -224,10 +336,10 @@ class NorsupPoolHealthCard extends HTMLElement {
           <div class="gauge-center">
             <span class="gauge-value">${valueText}</span>
             <span class="gauge-unit">${unit}</span>
+            ${targetInGauge}
             <span class="gauge-band">${label}</span>
           </div>
         </div>
-        ${targetCaption}
       `;
     };
 
@@ -235,8 +347,11 @@ class NorsupPoolHealthCard extends HTMLElement {
       (phTarget !== null && !this._config.ph_target_entity) ||
       (orpTarget !== null && !this._config.orp_target_entity);
     const footerNote = usesManualTarget
-      ? "Manual targets · enable pH/ORP target sensors when the API exposes them"
-      : "Green band and tick show dosing targets from your pool";
+      ? "Manual doelwaarden · link ph_target / orp_target sensors when the API exposes them"
+      : "Green arc = dosing band · tick = doel (target) from your pool";
+
+    const phSource = targetSource(this._hass, this._config.ph_target_entity, this._config.ph_target, phTarget);
+    const orpSource = targetSource(this._hass, this._config.orp_target_entity, this._config.orp_target, orpTarget);
 
     this.shadowRoot.innerHTML = `
       <style>
@@ -255,7 +370,7 @@ class NorsupPoolHealthCard extends HTMLElement {
             radial-gradient(90% 70% at 0% 100%, rgba(13, 148, 136, 0.45), transparent 50%),
             linear-gradient(155deg, #042f3a 0%, #064e5e 42%, #0a3d4a 100%);
           box-shadow: 0 12px 40px rgba(2, 44, 56, 0.35);
-          min-height: 200px;
+          min-height: 220px;
         }
         .card::after {
           content: "";
@@ -272,7 +387,7 @@ class NorsupPoolHealthCard extends HTMLElement {
           align-items: center;
           justify-content: space-between;
           gap: 0.75rem;
-          margin-bottom: 1rem;
+          margin-bottom: 0.75rem;
         }
         h2 {
           margin: 0;
@@ -295,6 +410,44 @@ class NorsupPoolHealthCard extends HTMLElement {
         .badge[data-level="warn"] { background: rgba(251, 191, 36, 0.35); border-color: rgba(252, 211, 77, 0.5); color: #fff8e7; }
         .badge[data-level="bad"] { background: rgba(248, 113, 113, 0.4); border-color: rgba(252, 165, 165, 0.55); }
         .badge[data-level="unknown"] { opacity: 0.85; }
+        .doel-strip {
+          position: relative;
+          z-index: 1;
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 0.5rem;
+          margin-bottom: 0.85rem;
+        }
+        .target-chip {
+          padding: 0.45rem 0.65rem;
+          border-radius: 14px;
+          background: linear-gradient(135deg, rgba(255,255,255,0.14), rgba(255,255,255,0.04));
+          border: 1px solid rgba(255,255,255,0.18);
+          backdrop-filter: blur(8px);
+          text-align: left;
+        }
+        .target-chip--empty {
+          opacity: 0.75;
+        }
+        .chip-kicker {
+          display: block;
+          font-size: 0.62rem;
+          text-transform: uppercase;
+          letter-spacing: 0.1em;
+          opacity: 0.8;
+        }
+        .chip-value {
+          display: block;
+          font-size: 1.05rem;
+          font-weight: 700;
+          margin-top: 0.1rem;
+        }
+        .chip-source {
+          display: block;
+          font-size: 0.58rem;
+          opacity: 0.65;
+          margin-top: 0.15rem;
+        }
         .gauges {
           position: relative;
           z-index: 1;
@@ -323,9 +476,10 @@ class NorsupPoolHealthCard extends HTMLElement {
         }
         .target-zone {
           fill: none;
-          stroke: rgba(52, 211, 153, 0.42);
+          stroke: rgba(52, 211, 153, 0.5);
           stroke-width: 10;
           stroke-linecap: butt;
+          filter: drop-shadow(0 0 6px rgba(52, 211, 153, 0.35));
         }
         .target-marker {
           fill: #ecfdf5;
@@ -334,13 +488,20 @@ class NorsupPoolHealthCard extends HTMLElement {
           transform: rotate(90deg);
           transform-origin: 60px 60px;
         }
+        .target-marker.pulse {
+          animation: target-pulse 2.2s ease-in-out infinite;
+        }
+        @keyframes target-pulse {
+          0%, 100% { filter: drop-shadow(0 0 2px rgba(236, 253, 245, 0.6)); }
+          50% { filter: drop-shadow(0 0 8px rgba(52, 211, 153, 0.9)); }
+        }
         .progress {
           fill: none;
           stroke-width: 10;
           stroke-linecap: round;
           transition: stroke-dashoffset 0.45s ease, stroke 0.3s ease;
         }
-        .gauge[data-level="great"] .progress { stroke: #34d399; }
+        .gauge[data-level="great"] .progress { stroke: #34d399; filter: drop-shadow(0 0 4px rgba(52, 211, 153, 0.45)); }
         .gauge[data-level="good"] .progress { stroke: #38bdf8; }
         .gauge[data-level="warn"] .progress { stroke: #fbbf24; }
         .gauge[data-level="bad"] .progress { stroke: #f87171; }
@@ -353,7 +514,7 @@ class NorsupPoolHealthCard extends HTMLElement {
           display: flex;
           flex-direction: column;
           align-items: center;
-          gap: 0.1rem;
+          gap: 0.05rem;
         }
         .gauge-value {
           font-size: 1.35rem;
@@ -366,8 +527,15 @@ class NorsupPoolHealthCard extends HTMLElement {
           text-transform: uppercase;
           letter-spacing: 0.06em;
         }
+        .gauge-target {
+          font-size: 0.62rem;
+          font-weight: 600;
+          color: #a7f3d0;
+          letter-spacing: 0.04em;
+          text-transform: lowercase;
+        }
         .gauge-band {
-          margin-top: 0.15rem;
+          margin-top: 0.1rem;
           font-size: 0.68rem;
           opacity: 0.9;
         }
@@ -377,12 +545,69 @@ class NorsupPoolHealthCard extends HTMLElement {
           font-weight: 600;
           opacity: 0.92;
         }
-        .target-hint {
-          margin-top: 0.2rem;
-          font-size: 0.68rem;
-          opacity: 0.78;
-          letter-spacing: 0.02em;
+        .comparison-bar {
+          margin-top: 0.55rem;
+          padding: 0 0.15rem;
         }
+        .bar-track {
+          position: relative;
+          height: 8px;
+          border-radius: 999px;
+          background: rgba(0,0,0,0.25);
+          border: 1px solid rgba(255,255,255,0.12);
+          overflow: visible;
+        }
+        .bar-zone {
+          position: absolute;
+          top: 0;
+          bottom: 0;
+          border-radius: 999px;
+          background: linear-gradient(90deg, rgba(52,211,153,0.15), rgba(52,211,153,0.45), rgba(52,211,153,0.15));
+        }
+        .bar-tick {
+          position: absolute;
+          top: -3px;
+          width: 3px;
+          height: 14px;
+          margin-left: -1.5px;
+          border-radius: 2px;
+          background: #ecfdf5;
+          box-shadow: 0 0 6px rgba(236, 253, 245, 0.65);
+        }
+        .bar-dot {
+          position: absolute;
+          top: 50%;
+          width: 12px;
+          height: 12px;
+          margin: -6px 0 0 -6px;
+          border-radius: 50%;
+          border: 2px solid rgba(255,255,255,0.9);
+        }
+        .bar-dot--live {
+          background: #38bdf8;
+          box-shadow: 0 0 10px rgba(56, 189, 248, 0.75);
+        }
+        .bar-legend {
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: center;
+          gap: 0.35rem 0.65rem;
+          margin-top: 0.35rem;
+          font-size: 0.62rem;
+          opacity: 0.88;
+        }
+        .bar-label--target { color: #a7f3d0; font-weight: 600; }
+        .bar-label--live { font-weight: 600; }
+        .bar-label--muted { opacity: 0.55; }
+        .bar-delta {
+          font-weight: 700;
+          padding: 0.1rem 0.35rem;
+          border-radius: 6px;
+          background: rgba(0,0,0,0.2);
+        }
+        .bar-delta[data-sign="pos"] { color: #fde68a; }
+        .bar-delta[data-sign="neg"] { color: #7dd3fc; }
+        .bar-delta[data-sign="zero"] { color: #a7f3d0; }
         .footer {
           position: relative;
           z-index: 1;
@@ -397,6 +622,10 @@ class NorsupPoolHealthCard extends HTMLElement {
           <h2>${this._config.title}</h2>
           <span class="badge" data-level="${health.level}">${health.label}</span>
         </div>
+        <div class="doel-strip">
+          ${targetChip("pH", phTarget, formatPh, phSource)}
+          ${targetChip("ORP", orpTarget, (v) => `${formatOrp(v)} mV`, orpSource)}
+        </div>
         <div class="gauges">
           <div class="gauge-wrap">
             ${ring(
@@ -409,9 +638,18 @@ class NorsupPoolHealthCard extends HTMLElement {
               this._config.ph_target_tolerance,
               this._config.ph_min,
               this._config.ph_max,
-              formatPh
+              formatPh,
+              phOnTarget
             )}
-            <div class="metric-label">pH</div>
+            <div class="metric-label">pH · live vs doel</div>
+            ${comparisonBar(
+              phVal,
+              phTarget,
+              this._config.ph_target_tolerance,
+              this._config.ph_min,
+              this._config.ph_max,
+              "pH"
+            )}
           </div>
           <div class="gauge-wrap">
             ${ring(
@@ -424,9 +662,18 @@ class NorsupPoolHealthCard extends HTMLElement {
               this._config.orp_target_tolerance,
               this._config.orp_min,
               this._config.orp_max,
-              formatOrp
+              formatOrp,
+              orpOnTarget
             )}
-            <div class="metric-label">ORP</div>
+            <div class="metric-label">ORP · live vs doel</div>
+            ${comparisonBar(
+              orpVal,
+              orpTarget,
+              this._config.orp_target_tolerance,
+              this._config.orp_min,
+              this._config.orp_max,
+              "mV"
+            )}
           </div>
         </div>
         <div class="footer">Norsup Smartpool · ${footerNote}</div>
@@ -441,6 +688,6 @@ window.customCards = window.customCards || [];
 window.customCards.push({
   type: `custom:${CARD_TAG}`,
   name: CARD_NAME,
-  description: "Pool health dashboard from pH and ORP sensors with visual dosing targets",
+  description: "Pool health dashboard from pH and ORP sensors with doel/target dosing bands",
   preview: true,
 });
