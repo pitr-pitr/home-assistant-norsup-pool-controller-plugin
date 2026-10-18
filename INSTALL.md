@@ -86,7 +86,7 @@ The integration exposes two sensors on your Norsup device:
 
 Find them under **Settings** → **Devices & services** → your **Norsup** pool → **Entities**. Search for `ph_target` or `orp_target` in the entity list, or filter by name “pH-doel” / “ORP-doel” in Dutch UI.
 
-The **Pool Health** Lovelace card can read those sensors via `ph_target_entity` and `orp_target_entity` (see below). If a target sensor is `unknown` or missing, set `ph_target` / `orp_target` manually in the card YAML.
+The **Pool Health** Lovelace card **auto-links** those target sensors from the same Norsup device as your pH/ORP readings (no YAML required when entity IDs follow the usual `…_ph` / `…_ph_target` pattern). You can still set `ph_target_entity` / `orp_target_entity` explicitly, or use manual `ph_target` / `orp_target` numbers when the API does not expose targets.
 
 #### If ORP target stays empty
 
@@ -119,7 +119,7 @@ orp_target_entity: sensor.YOUR_ORP_TARGET_ENTITY
 
 Replace the entity IDs with the **pH** and **ORP** sensors on your Norsup device (**Settings** → **Devices & services** → your pool → **Entities**). In the card picker you can also search for **Norsup Pool Health** after the resource is loaded.
 
-**Targets:** enable the **pH target** and **ORP target** sensors on your Norsup device when the cloud API returns them, then point `ph_target_entity` / `orp_target_entity` at those entities. The card draws a green target band and tick on each gauge and scores “Ideal / OK” relative to that target. If targets are missing from the API, omit the entity IDs and set `ph_target` / `orp_target` numbers in YAML instead.
+**Targets:** enable the **pH target** and **ORP target** sensors on your Norsup device when the cloud API returns them. The card picks them up automatically (or via optional `ph_target_entity` / `orp_target_entity`). It draws a green target band and tick on each gauge and scores “Ideal / OK” relative to that target. If targets are missing from the API, set `ph_target` / `orp_target` numbers in YAML instead.
 
 Optional tuning: `ph_min` / `ph_max` (default 6.8–8.0) and `orp_min` / `orp_max` (default 400–850) adjust the gauge scale; `ph_target_tolerance` (default `0.2`) and `orp_target_tolerance` (default `50`) set the width of the green target band in pH / mV.
 

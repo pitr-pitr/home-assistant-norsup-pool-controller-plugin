@@ -25,6 +25,9 @@ def test_pool_health_card_bundled() -> None:
     assert "norsup-pool-health-card" in text
     assert "window.customCards" in text
     assert "ph_target_entity" in text
+    assert "norsup_entity_key" in text
+    assert "parseLocalizedNumber" in text
+    assert "resolveTargetEntity" in text
     assert "target-zone" in text
     assert "doel-strip" in text
     assert "comparison-bar" in text

@@ -14,6 +14,16 @@ def norsup_unique_id(pool_id: str, key: str) -> str:
     return f"{pool_id}_{key}"
 
 
+def norsup_extra_attributes(
+    key: str, extra: dict[str, object] | None = None
+) -> dict[str, object]:
+    """State attributes exposed to Lovelace (stable entity key for cards)."""
+    attrs: dict[str, object] = {"norsup_entity_key": key}
+    if extra:
+        attrs.update(extra)
+    return attrs
+
+
 class NorsupSmartpoolEntity(CoordinatorEntity[NorsupDataUpdateCoordinator]):
     """Base class for Norsup pool entities."""
 

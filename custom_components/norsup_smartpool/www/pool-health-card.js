@@ -6,12 +6,106 @@
 const CARD_TAG = "norsup-pool-health-card";
 const CARD_NAME = "Norsup Pool Health";
 
-function parseNumber(state) {
-  if (!state || state.state === "unavailable" || state.state === "unknown") {
-    return null;
+function parseLocalizedNumber(raw) {
+  if (raw === undefined || raw === null) return null;
+  let text = String(raw).trim();
+  if (!text || text === "unavailable" || text === "unknown") return null;
+  text = text.replace(/\s/g, "");
+  if (text.includes(",") && text.includes(".")) {
+    text = text.replace(/\./g, "").replace(",", ".");
+  } else if (text.includes(",") && !text.includes(".")) {
+    text = text.replace(",", ".");
   }
-  const value = Number(state.state);
+  const value = Number(text);
   return Number.isFinite(value) ? value : null;
+}
+
+function parseNumber(state) {
+  if (!state) return null;
+  return parseLocalizedNumber(state.state);
+}
+
+function isNorsupState(hass, entityId) {
+  const ent = hass?.states?.[entityId];
+  if (!ent) return false;
+  const platform = ent.attributes?.platform ?? "";
+  return (
+    entityId.includes("norsup") ||
+    platform === "norsup_smartpool" ||
+    ent.attributes?.norsup_entity_key !== undefined
+  );
+}
+
+function entityDeviceId(hass, entityId) {
+  const reg = hass?.entities?.[entityId];
+  return reg?.device_id ?? null;
+}
+
+function findEntityByNorsupKey(hass, key, preferSameDeviceAs) {
+  if (!hass?.states) return "";
+  const deviceId = preferSameDeviceAs ? entityDeviceId(hass, preferSameDeviceAs) : null;
+  let fallback = "";
+  for (const entityId of Object.keys(hass.states)) {
+    if (!entityId.startsWith("sensor.")) continue;
+    const ent = hass.states[entityId];
+    if (ent.attributes?.norsup_entity_key !== key) continue;
+    if (deviceId && entityDeviceId(hass, entityId) === deviceId) {
+      return entityId;
+    }
+    if (!fallback) fallback = entityId;
+  }
+  return fallback;
+}
+
+function companionTargetEntity(hass, liveEntityId, targetKey) {
+  if (!liveEntityId?.startsWith("sensor.")) return "";
+  const slug = liveEntityId.slice("sensor.".length);
+  let candidateSlug = "";
+  if (targetKey === "ph_target") {
+    if (slug === "ph" || slug.endsWith("_ph")) {
+      const base = slug === "ph" ? "" : slug.slice(0, -3);
+      candidateSlug = base ? `${base}_ph_target` : "ph_target";
+    }
+  } else if (targetKey === "orp_target") {
+    if (slug === "orp" || slug.endsWith("_orp")) {
+      const base = slug === "orp" ? "" : slug.slice(0, -4);
+      candidateSlug = base ? `${base}_orp_target` : "orp_target";
+    }
+  }
+  if (candidateSlug && hass?.states[`sensor.${candidateSlug}`]) {
+    return `sensor.${candidateSlug}`;
+  }
+  return findEntityByNorsupKey(hass, targetKey, liveEntityId);
+}
+
+function resolveTargetEntity(hass, configuredId, liveEntityId, targetKey) {
+  if (configuredId && hass?.states[configuredId]) return configuredId;
+  return companionTargetEntity(hass, liveEntityId, targetKey);
+}
+
+function pickNorsupLiveSensor(hass, key) {
+  const ids = Object.keys(hass.states).filter(
+    (id) => id.startsWith("sensor.") && isNorsupState(hass, id)
+  );
+  const exact = ids.find((id) => hass.states[id].attributes?.norsup_entity_key === key);
+  if (exact) return exact;
+  if (key === "ph") {
+    return (
+      ids.find((id) => {
+        const slug = id.slice("sensor.".length);
+        return (slug === "ph" || slug.endsWith("_ph")) && !slug.includes("ph_target");
+      }) ?? ""
+    );
+  }
+  if (key === "orp") {
+    return (
+      ids.find((id) => {
+        const slug = id.slice("sensor.".length);
+        return (slug === "orp" || slug.endsWith("_orp")) && !slug.includes("orp_target");
+      }) ?? ""
+    );
+  }
+  return findEntityByNorsupKey(hass, key, "");
 }
 
 function resolveTarget(hass, entityId, manual) {
@@ -184,7 +278,7 @@ function targetChip(name, target, formatTarget, source) {
       <div class="target-chip target-chip--empty">
         <span class="chip-kicker">${name} doel</span>
         <span class="chip-value">—</span>
-        <span class="chip-source">Set ph_target / orp_target in card YAML</span>
+        <span class="chip-source">Enable the pH/ORP target sensors on your Norsup device</span>
       </div>
     `;
   }
@@ -217,30 +311,10 @@ class NorsupPoolHealthCard extends HTMLElement {
   }
 
   static getStubConfig(hass) {
-    const candidates = Object.keys(hass.states).filter((id) =>
-      id.startsWith("sensor.") && hass.states[id].attributes?.device_class !== undefined
-    );
-    const norsup = candidates.filter((id) => {
-      const ent = hass.states[id];
-      const platform = ent.attributes?.platform ?? "";
-      return id.includes("norsup") || platform === "norsup_smartpool";
-    });
-    const ph =
-      norsup.find((id) => id.endsWith("_ph") || id.includes("ph")) ??
-      candidates.find((id) => id.includes("ph")) ??
-      "";
-    const orp =
-      norsup.find((id) => id.endsWith("_orp") || id.includes("orp")) ??
-      candidates.find((id) => id.includes("orp")) ??
-      "";
-    const phTarget =
-      norsup.find((id) => id.includes("ph_target")) ??
-      candidates.find((id) => id.includes("ph_target")) ??
-      "";
-    const orpTarget =
-      norsup.find((id) => id.includes("orp_target")) ??
-      candidates.find((id) => id.includes("orp_target")) ??
-      "";
+    const ph = pickNorsupLiveSensor(hass, "ph");
+    const orp = pickNorsupLiveSensor(hass, "orp");
+    const phTarget = resolveTargetEntity(hass, "", ph, "ph_target");
+    const orpTarget = resolveTargetEntity(hass, "", orp, "orp_target");
     return {
       type: `custom:${CARD_TAG}`,
       ph_entity: ph,
@@ -289,8 +363,20 @@ class NorsupPoolHealthCard extends HTMLElement {
     const orpState = this._hass?.states[this._config.orp_entity];
     const phVal = parseNumber(phState);
     const orpVal = parseNumber(orpState);
-    const phTarget = resolveTarget(this._hass, this._config.ph_target_entity, this._config.ph_target);
-    const orpTarget = resolveTarget(this._hass, this._config.orp_target_entity, this._config.orp_target);
+    const phTargetEntity = resolveTargetEntity(
+      this._hass,
+      this._config.ph_target_entity,
+      this._config.ph_entity,
+      "ph_target"
+    );
+    const orpTargetEntity = resolveTargetEntity(
+      this._hass,
+      this._config.orp_target_entity,
+      this._config.orp_entity,
+      "orp_target"
+    );
+    const phTarget = resolveTarget(this._hass, phTargetEntity, this._config.ph_target);
+    const orpTarget = resolveTarget(this._hass, orpTargetEntity, this._config.orp_target);
     const ph = phBand(phVal, phTarget, this._config.ph_target_tolerance);
     const orp = orpBand(orpVal, orpTarget, this._config.orp_target_tolerance);
     const health = overallHealth(ph, orp);
@@ -344,14 +430,14 @@ class NorsupPoolHealthCard extends HTMLElement {
     };
 
     const usesManualTarget =
-      (phTarget !== null && !this._config.ph_target_entity) ||
-      (orpTarget !== null && !this._config.orp_target_entity);
+      (phTarget !== null && !phTargetEntity) ||
+      (orpTarget !== null && !orpTargetEntity);
     const footerNote = usesManualTarget
-      ? "Manual doelwaarden · link ph_target / orp_target sensors when the API exposes them"
+      ? "Manual doelwaarden · targets also sync from Norsup pH/ORP target sensors when present"
       : "Green arc = dosing band · tick = doel (target) from your pool";
 
-    const phSource = targetSource(this._hass, this._config.ph_target_entity, this._config.ph_target, phTarget);
-    const orpSource = targetSource(this._hass, this._config.orp_target_entity, this._config.orp_target, orpTarget);
+    const phSource = targetSource(this._hass, phTargetEntity, this._config.ph_target, phTarget);
+    const orpSource = targetSource(this._hass, orpTargetEntity, this._config.orp_target, orpTarget);
 
     this.shadowRoot.innerHTML = `
       <style>

@@ -27,7 +27,7 @@ from .api.models import (
 )
 from .const import CONF_ENABLE_DIAGNOSTICS, DOMAIN
 from .coordinator import NorsupDataUpdateCoordinator
-from .entity import NorsupSmartpoolEntity
+from .entity import NorsupSmartpoolEntity, norsup_extra_attributes
 
 
 async def async_setup_entry(
@@ -126,6 +126,10 @@ class NorsupPhSensor(NorsupSmartpoolEntity, SensorEntity):
             return None
         return self.coordinator.data.ph
 
+    @property
+    def extra_state_attributes(self) -> dict[str, object]:
+        return norsup_extra_attributes(self._key)
+
 
 class NorsupOrpSensor(NorsupSmartpoolEntity, SensorEntity):
     """Pool ORP / Rx from /pool.data."""
@@ -142,6 +146,10 @@ class NorsupOrpSensor(NorsupSmartpoolEntity, SensorEntity):
         if self.coordinator.data is None:
             return None
         return self.coordinator.data.orp_mv
+
+    @property
+    def extra_state_attributes(self) -> dict[str, object]:
+        return norsup_extra_attributes(self._key)
 
 
 class NorsupFreeChlorineSensor(NorsupSmartpoolEntity, SensorEntity):
@@ -246,6 +254,10 @@ class NorsupPhTargetSensor(NorsupSmartpoolEntity, SensorEntity):
             return None
         return self.coordinator.data.ph_target
 
+    @property
+    def extra_state_attributes(self) -> dict[str, object]:
+        return norsup_extra_attributes(self._key)
+
 
 class NorsupOrpTargetSensor(NorsupSmartpoolEntity, SensorEntity):
     """Configured ORP / Rx dosing target."""
@@ -261,6 +273,10 @@ class NorsupOrpTargetSensor(NorsupSmartpoolEntity, SensorEntity):
         if self.coordinator.data is None:
             return None
         return self.coordinator.data.orp_target
+
+    @property
+    def extra_state_attributes(self) -> dict[str, object]:
+        return norsup_extra_attributes(self._key)
 
 
 class NorsupPhDosingStatusSensor(NorsupSmartpoolEntity, SensorEntity):
