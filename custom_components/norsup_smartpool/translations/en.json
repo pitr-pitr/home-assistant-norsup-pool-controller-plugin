@@ -66,11 +66,19 @@
       "cl_dosing_status": { "name": "Chlorine dosing status" },
       "filter_error": { "name": "Filter error code" },
       "filter_status": { "name": "Filter status code" },
+      "filter_config_pump_speed": { "name": "Configured pump speed" },
+      "filter_status_pump_speed_code": { "name": "Filter status pump speed code" },
+      "filter_schedule_start_time": { "name": "Filter schedule {schedule} start" },
+      "filter_schedule_stop_time": { "name": "Filter schedule {schedule} stop" },
+      "filter_schedule_pump_speed": { "name": "Filter schedule {schedule} pump speed" },
+      "filter_schedule_days": { "name": "Filter schedule {schedule} days" },
       "diagnostics": { "name": "Diagnostics" }
     },
     "binary_sensor": {
       "pump_running": { "name": "Pump running" },
-      "cloud_online": { "name": "Cloud online" }
+      "cloud_online": { "name": "Cloud online" },
+      "filter_always_active": { "name": "Filter always active" },
+      "filter_schedule_enabled": { "name": "Filter schedule {schedule} enabled" }
     }
   },
   "options": {

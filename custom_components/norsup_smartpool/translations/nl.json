@@ -41,11 +41,19 @@
       "cl_dosing_status": { "name": "Chloordoseringstatus" },
       "filter_error": { "name": "Filterfoutcode" },
       "filter_status": { "name": "Filterstatuscode" },
+      "filter_config_pump_speed": { "name": "Ingestelde pompsnelheid" },
+      "filter_status_pump_speed_code": { "name": "Filterstatus pompsnelheidcode" },
+      "filter_schedule_start_time": { "name": "Filterschema {schedule} start" },
+      "filter_schedule_stop_time": { "name": "Filterschema {schedule} stop" },
+      "filter_schedule_pump_speed": { "name": "Filterschema {schedule} pompsnelheid" },
+      "filter_schedule_days": { "name": "Filterschema {schedule} dagen" },
       "diagnostics": { "name": "Diagnostiek" }
     },
     "binary_sensor": {
       "pump_running": { "name": "Pomp actief" },
-      "cloud_online": { "name": "Cloud online" }
+      "cloud_online": { "name": "Cloud online" },
+      "filter_always_active": { "name": "Filter altijd actief" },
+      "filter_schedule_enabled": { "name": "Filterschema {schedule} ingeschakeld" }
     }
   },
   "options": {

@@ -41,11 +41,19 @@
       "cl_dosing_status": { "name": "Chlordosierstatus" },
       "filter_error": { "name": "Filterfehlercode" },
       "filter_status": { "name": "Filterstatuscode" },
+      "filter_config_pump_speed": { "name": "Konfigurierte Pumpendrehzahl" },
+      "filter_status_pump_speed_code": { "name": "Filterstatus Pumpendrehzahl-Code" },
+      "filter_schedule_start_time": { "name": "Filterzeitplan {schedule} Start" },
+      "filter_schedule_stop_time": { "name": "Filterzeitplan {schedule} Ende" },
+      "filter_schedule_pump_speed": { "name": "Filterzeitplan {schedule} Pumpendrehzahl" },
+      "filter_schedule_days": { "name": "Filterzeitplan {schedule} Tage" },
       "diagnostics": { "name": "Diagnose" }
     },
     "binary_sensor": {
       "pump_running": { "name": "Pumpe läuft" },
-      "cloud_online": { "name": "Cloud online" }
+      "cloud_online": { "name": "Cloud online" },
+      "filter_always_active": { "name": "Filter immer aktiv" },
+      "filter_schedule_enabled": { "name": "Filterzeitplan {schedule} aktiv" }
     }
   },
   "options": {

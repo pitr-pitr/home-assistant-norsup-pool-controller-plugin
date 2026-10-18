@@ -19,6 +19,8 @@ from custom_components.norsup_smartpool.api import (
     async_validate_portal_credentials,
 )
 from custom_components.norsup_smartpool.api.models import (
+    coerce_pump_speed_code,
+    filter_module_from_pool_data,
     format_pump_speed,
     merge_filter_payload,
     merge_v3_analog_data,
@@ -206,6 +208,27 @@ def test_format_pump_speed_codes() -> None:
     assert format_pump_speed(2) == "medium"
     assert format_pump_speed(-1) == "disabled"
     assert format_pump_speed("high") == "high"
+
+
+def test_coerce_pump_speed_code() -> None:
+    assert coerce_pump_speed_code(2) == 2
+    assert coerce_pump_speed_code("medium") == 2
+    assert coerce_pump_speed_code("high") == 3
+
+
+def test_filter_module_from_pool_data() -> None:
+    data = parse_live_status(
+        POOL_ID,
+        {
+            "filter": {
+                "config": {"always_active": True, "pump_speed": "high"},
+                "status": {"pump_speed": 2},
+            }
+        },
+    )
+    filter_mod = filter_module_from_pool_data(data)
+    assert filter_mod["config"]["always_active"] is True
+    assert filter_mod["status"]["pump_speed"] == 2
 
 
 def test_merge_v3_analog_fills_orp() -> None:

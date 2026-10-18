@@ -10,7 +10,12 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .api.models import NorsupAuxChannel
+from .api.models import (
+    NorsupAuxChannel,
+    _coerce_bool,
+    _module_config,
+    filter_module_from_pool_data,
+)
 from .const import DOMAIN
 from .coordinator import NorsupDataUpdateCoordinator
 from .entity import NorsupSmartpoolEntity
@@ -29,9 +34,14 @@ async def async_setup_entry(
     entities: list[BinarySensorEntity] = [
         NorsupPumpRunningBinarySensor(coordinator),
         NorsupCloudOnlineBinarySensor(coordinator),
+        NorsupFilterAlwaysActiveBinarySensor(coordinator),
     ]
     for index in range(1, 5):
         entities.append(NorsupAuxChannelBinarySensor(coordinator, f"aux_{index}"))
+    for schedule_index in range(1, 4):
+        entities.append(
+            NorsupFilterScheduleEnabledBinarySensor(coordinator, schedule_index)
+        )
 
     async_add_entities(entities)
 
@@ -66,6 +76,54 @@ class NorsupCloudOnlineBinarySensor(NorsupSmartpoolEntity, BinarySensorEntity):
         if self.coordinator.data is None:
             return None
         return self.coordinator.data.online
+
+
+class NorsupFilterAlwaysActiveBinarySensor(NorsupSmartpoolEntity, BinarySensorEntity):
+    """Whether filter.config.always_active is enabled on the controller."""
+
+    _attr_translation_key = "filter_always_active"
+
+    def __init__(self, coordinator: NorsupDataUpdateCoordinator) -> None:
+        super().__init__(coordinator, "filter_always_active")
+
+    @property
+    def is_on(self) -> bool | None:
+        if self.coordinator.data is None:
+            return None
+        config = _module_config(filter_module_from_pool_data(self.coordinator.data))
+        if not config:
+            return None
+        return _coerce_bool(config.get("always_active"))
+
+
+class NorsupFilterScheduleEnabledBinarySensor(NorsupSmartpoolEntity, BinarySensorEntity):
+    """Whether a filter schedule slot is enabled in filter.config."""
+
+    def __init__(
+        self, coordinator: NorsupDataUpdateCoordinator, schedule_index: int
+    ) -> None:
+        self._schedule_index = schedule_index
+        super().__init__(coordinator, f"filter_schedule_{schedule_index}_enabled")
+        self._attr_translation_key = "filter_schedule_enabled"
+        self._attr_translation_placeholders = {"schedule": str(schedule_index)}
+
+    def _schedule_config(self) -> dict[str, object] | None:
+        if self.coordinator.data is None:
+            return None
+        config = _module_config(filter_module_from_pool_data(self.coordinator.data))
+        sched = config.get(f"schedule_{self._schedule_index}")
+        return sched if isinstance(sched, dict) else None
+
+    @property
+    def available(self) -> bool:
+        return self._schedule_config() is not None
+
+    @property
+    def is_on(self) -> bool | None:
+        sched = self._schedule_config()
+        if sched is None:
+            return None
+        return _coerce_bool(sched.get("enabled"))
 
 
 class NorsupAuxChannelBinarySensor(NorsupSmartpoolEntity, BinarySensorEntity):

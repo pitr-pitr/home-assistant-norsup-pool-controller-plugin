@@ -47,6 +47,28 @@ def _coerce_bool(value: Any) -> bool | None:
     return None
 
 
+def coerce_pump_speed_code(value: Any) -> int | None:
+    """Return numeric pump_speed code when the API sends an integer or known string."""
+    if value is None:
+        return None
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, (int, float)):
+        return int(value)
+    if isinstance(value, str):
+        normalized = value.strip().lower()
+        if normalized in ("maximum", "max"):
+            return 4
+        for code, label in _PUMP_SPEED_BY_CODE.items():
+            if label == normalized:
+                return code
+        try:
+            return int(normalized)
+        except ValueError:
+            return None
+    return None
+
+
 def format_pump_speed(value: Any) -> str | None:
     """Map Smart Pool Connect pump_speed codes to readable labels."""
     if value is None:
@@ -498,6 +520,17 @@ def merge_v3_analog_data(data: NorsupPoolData, payload: dict[str, Any]) -> Norsu
         if salt is not None:
             data.tds_salt_ppm = salt
     return data
+
+
+def filter_module_from_pool_data(data: NorsupPoolData) -> dict[str, Any]:
+    """Return the filter module dict from the coordinator snapshot, if present."""
+    for container in (data.live_status, data.pool_status):
+        if not isinstance(container, dict):
+            continue
+        filter_mod = container.get("filter")
+        if isinstance(filter_mod, dict):
+            return filter_mod
+    return {}
 
 
 def merge_filter_payload(data: NorsupPoolData, payload: dict[str, Any]) -> NorsupPoolData:
