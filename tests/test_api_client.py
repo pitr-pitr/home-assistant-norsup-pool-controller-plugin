@@ -92,6 +92,7 @@ async def test_async_get_pool_data_parses_rest_endpoint() -> None:
 
     with aioresponses() as m:
         m.get(_rest_pool_url(), payload=rest_pool)
+        m.get(_v3_analog_url(), payload={})
         async with aiohttp.ClientSession() as session:
             client = NorsupApiClient(session, POOL_ID, GOOD_KEY, BASE)
             data = await client.async_get_pool_data()
@@ -202,6 +203,16 @@ def test_merge_v3_analog_ambient_and_salt() -> None:
     )
     assert data.ambient_temperature_c == pytest.approx(10.874)
     assert data.tds_salt_ppm == pytest.approx(3350.6)
+
+
+def test_merge_v3_analog_fixes_implausible_ambient() -> None:
+    data = parse_live_status(POOL_ID, {"online": True})
+    data.ambient_temperature_c = 108.74
+    data = merge_v3_analog_data(
+        data,
+        {"data": {"ambient_t": 108.74, "ambient_temp_input_error": 0}},
+    )
+    assert data.ambient_temperature_c == pytest.approx(10.874)
 
 
 def test_format_pump_speed_codes() -> None:

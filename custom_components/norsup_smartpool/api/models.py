@@ -263,6 +263,9 @@ class NorsupPoolData:
     pool_name: str | None = None
     live_status: dict[str, Any] = field(default_factory=dict)
     pool_status: dict[str, Any] = field(default_factory=dict)
+    v3_analog_data: dict[str, Any] = field(default_factory=dict)
+    input_errors: dict[str, int] = field(default_factory=dict)
+    calibration_flags: dict[str, bool] = field(default_factory=dict)
 
 
 def _apply_filter_module(data: NorsupPoolData, filter_mod: dict[str, Any]) -> None:
@@ -495,11 +498,26 @@ def merge_readings(data: NorsupPoolData, ph: float | None, rx: float | None) -> 
 
 def merge_v3_analog_data(data: NorsupPoolData, payload: dict[str, Any]) -> NorsupPoolData:
     """Fill gaps from GET /pool/{pid}/v3/analoge_data (V3 pools)."""
+    from .coverage import CALIBRATION_FLAG_KEYS, INPUT_ERROR_KEYS
+
     if not payload:
         return data
     inner = payload.get("data") if isinstance(payload.get("data"), dict) else payload
     if not isinstance(inner, dict):
         return data
+    data.v3_analog_data = dict(inner)
+    for key in INPUT_ERROR_KEYS:
+        raw = inner.get(key)
+        if raw is None:
+            continue
+        try:
+            data.input_errors[key] = int(raw)
+        except (TypeError, ValueError):
+            continue
+    for key in CALIBRATION_FLAG_KEYS:
+        if key in inner:
+            data.calibration_flags[key] = bool(inner[key])
+
     if data.ph is None:
         data.ph = _coerce_float(inner.get("ph"))
     if data.orp_mv is None:
@@ -508,13 +526,16 @@ def merge_v3_analog_data(data: NorsupPoolData, payload: dict[str, Any]) -> Norsu
         data.water_temperature_c = _coerce_float(
             inner.get("water_t") or inner.get("water_temp")
         )
-    if data.ambient_temperature_c is None:
-        err = _coerce_float(inner.get("ambient_temp_input_error"))
-        err_int = int(err) if err is not None else None
-        data.ambient_temperature_c = _normalize_ambient_temperature_c(
-            _coerce_float(inner.get("ambient_t") or inner.get("ambient_temp")),
-            input_error=err_int,
-        )
+    err = _coerce_float(inner.get("ambient_temp_input_error"))
+    err_int = int(err) if err is not None else None
+    analog_ambient = _normalize_ambient_temperature_c(
+        _coerce_float(inner.get("ambient_t") or inner.get("ambient_temp")),
+        input_error=err_int,
+    )
+    if analog_ambient is not None:
+        current = data.ambient_temperature_c
+        if current is None or current > 60.0 or current < -40.0:
+            data.ambient_temperature_c = analog_ambient
     if data.tds_salt_ppm is None:
         salt = _coerce_float(inner.get("tds_salt"))
         if salt is not None:

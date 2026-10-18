@@ -53,7 +53,13 @@
       "pump_running": { "name": "Pumpe läuft" },
       "cloud_online": { "name": "Cloud online" },
       "filter_always_active": { "name": "Filter immer aktiv" },
-      "filter_schedule_enabled": { "name": "Filterzeitplan {schedule} aktiv" }
+      "filter_schedule_enabled": { "name": "Filterzeitplan {schedule} aktiv" },
+      "sensor_faults": { "name": "Sensorfehler" },
+      "calibration_ph_4": { "name": "pH-4-Kalibrierung" },
+      "calibration_ph_7": { "name": "pH-7-Kalibrierung" },
+      "calibration_ph_correct": { "name": "pH-Kalibrierung gültig" },
+      "calibration_rx_475": { "name": "ORP 475 mV Kalibrierung" },
+      "calibration_rx_correct": { "name": "ORP-Kalibrierung gültig" }
     }
   },
   "options": {

@@ -10,6 +10,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
+from .api.coverage import CALIBRATION_FLAG_KEYS
 from .api.models import (
     NorsupAuxChannel,
     _coerce_bool,
@@ -42,6 +43,9 @@ async def async_setup_entry(
         entities.append(
             NorsupFilterScheduleEnabledBinarySensor(coordinator, schedule_index)
         )
+    entities.append(NorsupSensorFaultsBinarySensor(coordinator))
+    for flag_key in CALIBRATION_FLAG_KEYS:
+        entities.append(NorsupCalibrationFlagBinarySensor(coordinator, flag_key))
 
     async_add_entities(entities)
 
@@ -181,3 +185,50 @@ class NorsupAuxChannelBinarySensor(NorsupSmartpoolEntity, BinarySensorEntity):
         if channel.schedule_stop:
             attrs["schedule_stop"] = channel.schedule_stop
         return attrs
+
+
+class NorsupSensorFaultsBinarySensor(NorsupSmartpoolEntity, BinarySensorEntity):
+    """Any V3 analog *_input_error flag is non-zero."""
+
+    _attr_translation_key = "sensor_faults"
+    _attr_device_class = BinarySensorDeviceClass.PROBLEM
+
+    def __init__(self, coordinator: NorsupDataUpdateCoordinator) -> None:
+        super().__init__(coordinator, "sensor_faults")
+
+    @property
+    def is_on(self) -> bool | None:
+        if self.coordinator.data is None:
+            return None
+        errors = self.coordinator.data.input_errors
+        if not errors:
+            return False
+        return any(value != 0 for value in errors.values())
+
+    @property
+    def extra_state_attributes(self) -> dict[str, object]:
+        if self.coordinator.data is None:
+            return {}
+        return dict(self.coordinator.data.input_errors)
+
+
+class NorsupCalibrationFlagBinarySensor(NorsupSmartpoolEntity, BinarySensorEntity):
+    """One V3 calibration_* flag from analoge_data."""
+
+    _attr_device_class = BinarySensorDeviceClass.RUNNING
+
+    def __init__(
+        self, coordinator: NorsupDataUpdateCoordinator, flag_key: str
+    ) -> None:
+        self._flag_key = flag_key
+        super().__init__(coordinator, flag_key)
+        self._attr_translation_key = flag_key
+
+    @property
+    def is_on(self) -> bool | None:
+        if self.coordinator.data is None:
+            return None
+        flags = self.coordinator.data.calibration_flags
+        if self._flag_key not in flags:
+            return None
+        return flags[self._flag_key]

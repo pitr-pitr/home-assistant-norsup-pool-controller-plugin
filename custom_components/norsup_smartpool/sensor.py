@@ -17,6 +17,7 @@ from homeassistant.const import (
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
+from .api.coverage import v3_adc_diagnostic_attributes, v3_misc_diagnostic_attributes
 from .api.models import (
     _module_config,
     _module_status,
@@ -543,10 +544,20 @@ class NorsupDiagnosticsSensor(NorsupSmartpoolEntity, SensorEntity):
         if self.coordinator.data is None:
             return {}
         data = self.coordinator.data
-        return {
+        attrs: dict[str, object] = {
             "live_status": data.live_status,
             "pool_status": data.pool_status,
             "ph_dosing_status": data.ph_dosing_status,
             "cl_dosing_status": data.cl_dosing_status,
             "filter_pump_status": data.filter_pump_status,
+            "pool_id": data.pool_id,
+            "mac_address": data.live_status.get("mac_address"),
+            "api_version": data.live_status.get("api_version"),
+            "pool_activity_at": data.live_status.get("activity_at"),
+            "pool_created_at": data.live_status.get("created_at"),
         }
+        v3 = data.v3_analog_data
+        if v3:
+            attrs.update(v3_adc_diagnostic_attributes(v3))
+            attrs.update(v3_misc_diagnostic_attributes(v3))
+        return attrs

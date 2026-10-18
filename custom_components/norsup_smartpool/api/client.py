@@ -171,9 +171,8 @@ class NorsupApiClient:
                 API_REST_POOL.format(pool_id=self._pool_id)
             )
             data = parse_rest_pool(self._pool_id, payload)
-            if data.orp_mv is None or data.ph is None or data.water_temperature_c is None:
-                analog = await self.async_get_v3_analog_data()
-                data = merge_v3_analog_data(data, analog)
+            analog = await self.async_get_v3_analog_data()
+            data = merge_v3_analog_data(data, analog)
             return data
 
         live_task = asyncio.create_task(self.async_get_live_status())

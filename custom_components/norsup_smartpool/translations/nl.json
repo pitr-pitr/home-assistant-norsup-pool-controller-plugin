@@ -53,7 +53,13 @@
       "pump_running": { "name": "Pomp actief" },
       "cloud_online": { "name": "Cloud online" },
       "filter_always_active": { "name": "Filter altijd actief" },
-      "filter_schedule_enabled": { "name": "Filterschema {schedule} ingeschakeld" }
+      "filter_schedule_enabled": { "name": "Filterschema {schedule} ingeschakeld" },
+      "sensor_faults": { "name": "Sensorfouten" },
+      "calibration_ph_4": { "name": "pH 4 kalibratie" },
+      "calibration_ph_7": { "name": "pH 7 kalibratie" },
+      "calibration_ph_correct": { "name": "pH-kalibratie geldig" },
+      "calibration_rx_475": { "name": "ORP 475 mV kalibratie" },
+      "calibration_rx_correct": { "name": "ORP-kalibratie geldig" }
     }
   },
   "options": {
